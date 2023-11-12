@@ -3,20 +3,25 @@ package dgkdxf
 import (
 	"errors"
 	dgctx "github.com/darwinOrg/go-common/context"
+	"github.com/darwinOrg/go-common/model"
+	"github.com/darwinOrg/go-common/utils"
 	dghttp "github.com/darwinOrg/go-httpclient"
 	"github.com/google/uuid"
 	"strings"
-	"time"
 )
 
-type AudioType string
+const featureFailStatus = 2
 
-const (
-	AudioTypeRaw     AudioType = "raw"
-	AudioTypeSpeex   AudioType = "speex"
-	AudioTypeOpusOgg AudioType = "opus-ogg"
-	failStatus                 = 2
-)
+type FeatureResult[T any] struct {
+	Code string `json:"code"`
+	Desc string `json:"desc"`
+	Data *T     `json:"data"`
+	Sid  string `json:"sid"`
+}
+
+func (rt *FeatureResult[T]) isSuccess() bool {
+	return rt.Code == apiSuccessCode
+}
 
 type RegisterFeatureRequest struct {
 	AudioData string    `json:"audio_data" binding:"required,minLength=1"`
@@ -48,9 +53,9 @@ type DeleteFeatureResponse struct {
 }
 
 func (c *Client) RegisterFeature(ctx *dgctx.DgContext, req *RegisterFeatureRequest) (string, error) {
-	params, header := c.buildParamsAndHeader(ctx)
-	url := c.Config.Host + "/res/feature/v1/register?" + formUrlEncodedParams(params)
-	rt, err := dghttp.DoPostJsonToStruct[IflytekResult[RegisterFeatureResponse]](ctx, url, req, header)
+	params, header := c.buildFeatureParamsAndHeader(ctx)
+	url := c.Config.Host + "/res/feature/v1/register?" + utils.FormUrlEncodedParams(params)
+	rt, err := dghttp.DoPostJsonToStruct[FeatureResult[RegisterFeatureResponse]](ctx, url, req, header)
 	if err != nil {
 		return "", err
 	}
@@ -59,7 +64,7 @@ func (c *Client) RegisterFeature(ctx *dgctx.DgContext, req *RegisterFeatureReque
 		return "", errors.New(rt.Desc)
 	}
 
-	if rt.Data.Status == failStatus || rt.Data.FeatureId == "" {
+	if rt.Data.Status == featureFailStatus || rt.Data.FeatureId == "" {
 		return "", errors.New("注册失败")
 	}
 
@@ -67,9 +72,9 @@ func (c *Client) RegisterFeature(ctx *dgctx.DgContext, req *RegisterFeatureReque
 }
 
 func (c *Client) UpdateFeature(ctx *dgctx.DgContext, req *UpdateFeatureRequest) error {
-	params, header := c.buildParamsAndHeader(ctx)
-	url := c.Config.Host + "/res/feature/v1/update?" + formUrlEncodedParams(params)
-	rt, err := dghttp.DoPostJsonToStruct[IflytekResult[UpdateFeatureResponse]](ctx, url, req, header)
+	params, header := c.buildFeatureParamsAndHeader(ctx)
+	url := c.Config.Host + "/res/feature/v1/update?" + utils.FormUrlEncodedParams(params)
+	rt, err := dghttp.DoPostJsonToStruct[FeatureResult[UpdateFeatureResponse]](ctx, url, req, header)
 	if err != nil {
 		return err
 	}
@@ -78,7 +83,7 @@ func (c *Client) UpdateFeature(ctx *dgctx.DgContext, req *UpdateFeatureRequest) 
 		return errors.New(rt.Desc)
 	}
 
-	if rt.Data.Status == failStatus {
+	if rt.Data.Status == featureFailStatus {
 		return errors.New("更新失败")
 	}
 
@@ -87,9 +92,9 @@ func (c *Client) UpdateFeature(ctx *dgctx.DgContext, req *UpdateFeatureRequest) 
 
 func (c *Client) DeleteFeature(ctx *dgctx.DgContext, featureIds []string) []string {
 	req := map[string]any{"feature_ids": featureIds}
-	params, header := c.buildParamsAndHeader(ctx)
-	url := c.Config.Host + "/res/feature/v1/update?" + formUrlEncodedParams(params)
-	rt, err := dghttp.DoPostJsonToStruct[IflytekResult[DeleteFeatureResponse]](ctx, url, req, header)
+	params, header := c.buildFeatureParamsAndHeader(ctx)
+	url := c.Config.Host + "/res/feature/v1/update?" + utils.FormUrlEncodedParams(params)
+	rt, err := dghttp.DoPostJsonToStruct[FeatureResult[DeleteFeatureResponse]](ctx, url, req, header)
 	if err != nil {
 		return featureIds
 	}
@@ -105,11 +110,20 @@ func (c *Client) DeleteFeature(ctx *dgctx.DgContext, featureIds []string) []stri
 	return strings.Split(rt.Data.DelFailIds, ";")
 }
 
-func (c *Client) buildParamsAndHeader(ctx *dgctx.DgContext) (map[string]any, map[string]string) {
-	params := map[string]any{
-		"accessKeyId":     c.Config.AccessKeyId,
-		"dateTime":        time.Now().Format(timeFormat),
-		"signatureRandom": uuid.NewString(),
+func (c *Client) buildFeatureParamsAndHeader(ctx *dgctx.DgContext) ([]*model.KeyValuePair[string, any], map[string]string) {
+	params := []*model.KeyValuePair[string, any]{
+		{
+			Key:   "accessKeyId",
+			Value: c.Config.AccessKeyId,
+		},
+		{
+			Key:   "dateTime",
+			Value: getNowTimeString(),
+		},
+		{
+			Key:   "signatureRandom",
+			Value: uuid.NewString(),
+		},
 	}
 
 	header := map[string]string{
