@@ -9,7 +9,7 @@ import (
 )
 
 func TestBuildAstUri(t *testing.T) {
-	host := "https://api.iflyrec.com"
+	host := "wss://api.iflyrec.com"
 	appId := os.Getenv("appId")
 	accessKeyId := os.Getenv("accessKeyId")
 	accessKeySecret := os.Getenv("accessKeySecret")

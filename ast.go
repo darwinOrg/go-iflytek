@@ -35,6 +35,29 @@ type AstParamConfig struct {
 	ResultFilePath string   `json:"resultFilePath"`
 }
 
+type AstResult struct {
+	SegID int64 `json:"seg_id"`
+	Cn    struct {
+		St struct {
+			Bg string `json:"bg"`
+			Ed string `json:"ed"`
+			Rt []struct {
+				Ws []struct {
+					Cw []struct {
+						Rl int64  `json:"rl"`
+						W  string `json:"w"`
+						Wp string `json:"wp"`
+					} `json:"cw"`
+					Wb int64 `json:"wb"`
+					We int64 `json:"we"`
+				} `json:"ws"`
+			} `json:"rt"`
+			Type string `json:"type"`
+		} `json:"st"`
+	} `json:"cn"`
+	Ls bool `json:"ls"`
+}
+
 func (c *Client) AstConnect(ctx *dgctx.DgContext, config *AstParamConfig) (*websocket.Conn, error) {
 	uri := c.BuildAstUri(ctx, config)
 	dglogger.Infof(ctx, "ast config: %s, uri: %s", utils.MustConvertBeanToJsonString(config), uri)
@@ -44,49 +67,6 @@ func (c *Client) AstConnect(ctx *dgctx.DgContext, config *AstParamConfig) (*webs
 	}
 
 	return cn, nil
-}
-
-func (c *Client) AstReadMessage(ctx *dgctx.DgContext, cn *websocket.Conn) error {
-	for {
-		mt, message, err := cn.ReadMessage()
-
-		if mt == websocket.CloseMessage || mt == -1 {
-			dglogger.Infof(ctx, "[userId: %d] received iflytek ast close message, error: %v", ctx.UserId, err)
-			return nil
-		}
-
-		if mt == websocket.PongMessage {
-			dglogger.Infof(ctx, "[userId: %d] received iflytek ast pong message", ctx.UserId)
-			continue
-		}
-
-		if mt == websocket.TextMessage {
-			var mp map[string]any
-			err := json.Unmarshal(message, &mp)
-			if err != nil {
-				dglogger.Errorf(ctx, "[userId: %d] unmarshal message[%s] error: %v", ctx.UserId, string(message), err)
-				continue
-			}
-
-			action := mp["action"]
-			if action == "started" {
-				dglogger.Infof(ctx, "[userId: %d] received iflytek ast started message", ctx.UserId)
-				continue
-			}
-
-			code := mp["code"]
-			if code == "100001" {
-				dglogger.Errorf(ctx, "[userId: %d] iflytek ast exceed upload speed limit", ctx.UserId)
-				continue
-			}
-
-			continue
-		}
-
-		if err != nil {
-			return err
-		}
-	}
 }
 
 func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) string {
@@ -146,6 +126,58 @@ func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) strin
 	})
 	paramsStr := strings.Join(paramsArr, "&")
 	return c.Config.Host + "/ast?" + paramsStr
+}
+
+func AstReadMessage(ctx *dgctx.DgContext, cn *websocket.Conn, consumeFunc func(*dgctx.DgContext, *AstResult) error) error {
+	for {
+		mt, data, err := cn.ReadMessage()
+
+		if mt == websocket.CloseMessage || mt == -1 {
+			dglogger.Infof(ctx, "[userId: %d] received iflytek ast close message, error: %v", ctx.UserId, err)
+			return nil
+		}
+
+		if mt == websocket.TextMessage {
+			var mp map[string]any
+			err := json.Unmarshal(data, &mp)
+			if err != nil {
+				dglogger.Errorf(ctx, "[userId: %d] unmarshal message[%s] error: %v", ctx.UserId, string(data), err)
+				continue
+			}
+
+			action := mp["action"]
+			if action == "started" {
+				dglogger.Infof(ctx, "[userId: %d] received iflytek ast started message", ctx.UserId)
+				continue
+			}
+
+			code := mp["code"]
+			if code == "100001" {
+				dglogger.Errorf(ctx, "[userId: %d] iflytek ast exceed upload speed limit", ctx.UserId)
+				continue
+			}
+
+			astResult, err := utils.ConvertJsonBytesToBean[AstResult](data)
+			if err != nil {
+				dglogger.Errorf(ctx, "[userId: %d] unmarshal message[%s] error: %v", ctx.UserId, string(data), err)
+				continue
+			}
+
+			if astResult != nil {
+				err := consumeFunc(ctx, astResult)
+				if err != nil {
+					dglogger.Errorf(ctx, "[userId: %d] handle message[%s] error: %v", ctx.UserId, string(data), err)
+					continue
+				}
+			}
+
+			continue
+		}
+
+		if err != nil {
+			return err
+		}
+	}
 }
 
 func AstWriteStarted(ctx *dgctx.DgContext, cn *websocket.Conn) error {
