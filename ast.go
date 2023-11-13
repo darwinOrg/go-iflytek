@@ -162,6 +162,7 @@ func AstReadMessage(ctx *dgctx.DgContext, cn *websocket.Conn, consumeFunc func(*
 		}
 
 		if mt == websocket.TextMessage {
+			dglogger.Infof(ctx, "[userId: %d] receive iflytek ast message: %s", string(data))
 			var mp map[string]any
 			err := json.Unmarshal(data, &mp)
 			if err != nil {
