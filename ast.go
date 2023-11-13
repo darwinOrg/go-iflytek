@@ -28,18 +28,19 @@ const (
 type AstParamConfig struct {
 	Lang           string   `json:"lang"`
 	Codec          string   `json:"codec"`
-	Samplerate     string   `json:"samplerate"`
 	AudioEncode    string   `json:"audioEncode"`
+	Samplerate     string   `json:"samplerate"`
 	HotWordId      string   `json:"hotWordId"`
 	SourceInfo     string   `json:"sourceInfo"`
 	RoleType       RoleType `json:"roleType"`
+	ContextId      string   `json:"contextId"`
 	FeatureIds     []string `json:"featureIds"`
 	FilePath       string   `json:"filePath"`
 	ResultFilePath string   `json:"resultFilePath"`
 }
 
 func (c *Client) AstConnect(ctx *dgctx.DgContext, config *AstParamConfig) (*websocket.Conn, error) {
-	uri := c.buildAstUri(ctx, config)
+	uri := c.BuildAstUri(ctx, config)
 	dglogger.Infof(ctx, "ast config: %s, uri: %s", utils.MustConvertBeanToJsonString(config), uri)
 	cn, _, err := websocket.DefaultDialer.Dial(uri, nil)
 	if err != nil {
@@ -92,7 +93,12 @@ func (c *Client) AstReadMessage(ctx *dgctx.DgContext, cn *websocket.Conn) error 
 	}
 }
 
-func (c *Client) buildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) string {
+func (c *Client) AstEnd(ctx *dgctx.DgContext, cn *websocket.Conn) error {
+	dglogger.Infof(ctx, "send end message to iflytek ast")
+	return cn.WriteMessage(websocket.TextMessage, []byte("{\"end\":true}"))
+}
+
+func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) string {
 	parts := []string{"v1.0", c.Config.AppId, c.Config.AccessKeyId, getNowTimeString(), uuid.NewString()}
 	partsStr := strings.Join(parts, ",")
 	baseString := url.QueryEscape(partsStr)
@@ -119,7 +125,7 @@ func (c *Client) buildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) strin
 		},
 		{
 			Key:   "sourceInfo",
-			Value: config.Lang,
+			Value: config.SourceInfo,
 		},
 		{
 			Key:   "audioEncode",
