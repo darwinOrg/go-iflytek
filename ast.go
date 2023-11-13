@@ -201,7 +201,6 @@ func AstReadMessage(ctx *dgctx.DgContext, cn *websocket.Conn, consumeFunc func(*
 
 		if err != nil {
 			dglogger.Errorf(ctx, "read message error: %v", err)
-			return err
 		}
 	}
 }
