@@ -62,10 +62,10 @@ type AstResult struct {
 	Ls bool `json:"ls"`
 }
 
-func (ar *AstResult) CombineWords() string {
+func (ar *AstResult) CombineFinalWords() string {
 	var combinedWords string
 
-	if len(ar.Cn.St.Rt) > 0 {
+	if ar.Cn.St.Type == AstResultTypeFinal && len(ar.Cn.St.Rt) > 0 {
 		for _, rt := range ar.Cn.St.Rt {
 			if len(rt.Ws) > 0 {
 				for _, ws := range rt.Ws {
