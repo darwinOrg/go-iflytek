@@ -89,16 +89,6 @@ func (c *Client) AstReadMessage(ctx *dgctx.DgContext, cn *websocket.Conn) error 
 	}
 }
 
-func (c *Client) AstWriteStarted(ctx *dgctx.DgContext, cn *websocket.Conn) error {
-	dglogger.Infof(ctx, "send started message")
-	return cn.WriteMessage(websocket.TextMessage, []byte("{\"action\":\"started\"}"))
-}
-
-func (c *Client) AstWriteEnd(ctx *dgctx.DgContext, cn *websocket.Conn) error {
-	dglogger.Infof(ctx, "send end message")
-	return cn.WriteMessage(websocket.TextMessage, []byte("{\"end\":true}"))
-}
-
 func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) string {
 	parts := []string{"v1.0", c.Config.AppId, c.Config.AccessKeyId, getNowTimeString(), uuid.NewString()}
 	partsStr := strings.Join(parts, ",")
@@ -156,4 +146,14 @@ func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) strin
 	})
 	paramsStr := strings.Join(paramsArr, "&")
 	return c.Config.Host + "/ast?" + paramsStr
+}
+
+func AstWriteStarted(ctx *dgctx.DgContext, cn *websocket.Conn) error {
+	dglogger.Infof(ctx, "send started message")
+	return cn.WriteMessage(websocket.TextMessage, []byte("{\"action\":\"started\"}"))
+}
+
+func AstWriteEnd(ctx *dgctx.DgContext, cn *websocket.Conn) error {
+	dglogger.Infof(ctx, "send end message")
+	return cn.WriteMessage(websocket.TextMessage, []byte("{\"end\":true}"))
 }
