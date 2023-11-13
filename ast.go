@@ -62,6 +62,26 @@ type AstResult struct {
 	Ls bool `json:"ls"`
 }
 
+func (ar *AstResult) CombineWords() string {
+	var combinedWords string
+
+	if len(ar.Cn.St.Rt) > 0 {
+		for _, rt := range ar.Cn.St.Rt {
+			if len(rt.Ws) > 0 {
+				for _, ws := range rt.Ws {
+					if len(ws.Cw) > 0 {
+						for _, cw := range ws.Cw {
+							combinedWords = combinedWords + cw.W
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return combinedWords
+}
+
 func (c *Client) AstConnect(ctx *dgctx.DgContext, config *AstParamConfig) (*websocket.Conn, error) {
 	uri := c.BuildAstUri(ctx, config)
 	dglogger.Infof(ctx, "ast config: %s, uri: %s", utils.MustConvertBeanToJsonString(config), uri)
