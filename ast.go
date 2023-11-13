@@ -157,3 +157,24 @@ func AstWriteEnd(ctx *dgctx.DgContext, cn *websocket.Conn) error {
 	dglogger.Infof(ctx, "send end message")
 	return cn.WriteMessage(websocket.TextMessage, []byte("{\"end\":true}"))
 }
+
+func IsAstEndMessage(mt int, data []byte) bool {
+	if mt == websocket.CloseMessage || mt == -1 {
+		return true
+	}
+
+	if mt == websocket.TextMessage && len(data) > 0 {
+		var mp map[string]any
+		err := json.Unmarshal(data, &mp)
+		if err != nil {
+			return false
+		}
+
+		end, ok := mp["end"].(bool)
+		if ok && end {
+			return true
+		}
+	}
+
+	return false
+}
