@@ -48,8 +48,12 @@ type AstResult struct {
 			Rt []struct {
 				Ws []struct {
 					Cw []struct {
-						Rl int64  `json:"rl"`
+						Rl string `json:"rl"`
+						Sc int64  `json:"sc"`
 						W  string `json:"w"`
+						Wb int64  `json:"wb"`
+						Wc int64  `json:"wc"`
+						We int64  `json:"we"`
 						Wp string `json:"wp"`
 					} `json:"cw"`
 					Wb int64 `json:"wb"`
