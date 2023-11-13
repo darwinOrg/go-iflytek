@@ -1,6 +1,7 @@
 package dgkdxf
 
 import (
+	"encoding/json"
 	dgcoll "github.com/darwinOrg/go-common/collection"
 	dgctx "github.com/darwinOrg/go-common/context"
 	"github.com/darwinOrg/go-common/model"
@@ -19,8 +20,9 @@ const (
 	RoleTypeClose RoleType = 0
 	RoleTypeOpen  RoleType = 2
 
-	actionStarted = "started"
-	actionEnd     = "end"
+	actionStarted              = "started"
+	actionEnd                  = "end"
+	exceedUploadSpeedLimitCode = "100001"
 )
 
 type AstParamConfig struct {
@@ -52,16 +54,34 @@ func (c *Client) AstReadMessage(ctx *dgctx.DgContext, cn *websocket.Conn) error 
 		mt, message, err := cn.ReadMessage()
 
 		if mt == websocket.CloseMessage || mt == -1 {
-			dglogger.Infof(ctx, "received iflytek close message, error: %v", err)
+			dglogger.Infof(ctx, "[userId: %d] received iflytek ast close message, error: %v", ctx.UserId, err)
 			return nil
 		}
 
 		if mt == websocket.PongMessage {
-			dglogger.Info(ctx, "received iflytek pong message")
+			dglogger.Infof(ctx, "[userId: %d] received iflytek ast pong message", ctx.UserId)
 			continue
 		}
 
 		if mt == websocket.TextMessage {
+			var mp map[string]any
+			err := json.Unmarshal(message, &mp)
+			if err != nil {
+				dglogger.Errorf(ctx, "[userId: %d] unmarshal message[%s] error: %v", ctx.UserId, string(message), err)
+				continue
+			}
+
+			action := mp["action"]
+			if action == actionStarted {
+				dglogger.Infof(ctx, "[userId: %d] received iflytek ast started message", ctx.UserId)
+				continue
+			}
+
+			code := mp["code"]
+			if code == exceedUploadSpeedLimitCode {
+				dglogger.Errorf(ctx, "[userId: %d] iflytek ast exceed upload speed limit", ctx.UserId)
+				continue
+			}
 
 			continue
 		}
