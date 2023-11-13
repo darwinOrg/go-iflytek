@@ -15,10 +15,14 @@ import (
 )
 
 type RoleType int
+type AstResultType int
 
 const (
 	RoleTypeClose RoleType = 0
 	RoleTypeOpen  RoleType = 2
+
+	AstResultTypeFinal  AstResultType = 0
+	AstResultTypeMiddle AstResultType = 1
 )
 
 type AstParamConfig struct {
@@ -52,7 +56,7 @@ type AstResult struct {
 					We int64 `json:"we"`
 				} `json:"ws"`
 			} `json:"rt"`
-			Type string `json:"type"`
+			Type AstResultType `json:"type"`
 		} `json:"st"`
 	} `json:"cn"`
 	Ls bool `json:"ls"`
@@ -175,6 +179,7 @@ func AstReadMessage(ctx *dgctx.DgContext, cn *websocket.Conn, consumeFunc func(*
 		}
 
 		if err != nil {
+			dglogger.Errorf(ctx, "read message error: %v", err)
 			return err
 		}
 	}
