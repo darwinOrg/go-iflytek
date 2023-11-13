@@ -21,7 +21,6 @@ const (
 	RoleTypeOpen  RoleType = 2
 
 	actionStarted              = "started"
-	actionEnd                  = "end"
 	exceedUploadSpeedLimitCode = "100001"
 )
 
@@ -30,11 +29,11 @@ type AstParamConfig struct {
 	Codec          string   `json:"codec"`
 	AudioEncode    string   `json:"audioEncode"`
 	Samplerate     string   `json:"samplerate"`
-	HotWordId      string   `json:"hotWordId"`
-	SourceInfo     string   `json:"sourceInfo"`
 	RoleType       RoleType `json:"roleType"`
 	ContextId      string   `json:"contextId"`
 	FeatureIds     []string `json:"featureIds"`
+	HotWordId      string   `json:"hotWordId"`
+	SourceInfo     string   `json:"sourceInfo"`
 	FilePath       string   `json:"filePath"`
 	ResultFilePath string   `json:"resultFilePath"`
 }
