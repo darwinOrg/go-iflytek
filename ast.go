@@ -19,9 +19,6 @@ type RoleType int
 const (
 	RoleTypeClose RoleType = 0
 	RoleTypeOpen  RoleType = 2
-
-	actionStarted              = "started"
-	exceedUploadSpeedLimitCode = "100001"
 )
 
 type AstParamConfig struct {
@@ -72,13 +69,13 @@ func (c *Client) AstReadMessage(ctx *dgctx.DgContext, cn *websocket.Conn) error 
 			}
 
 			action := mp["action"]
-			if action == actionStarted {
+			if action == "started" {
 				dglogger.Infof(ctx, "[userId: %d] received iflytek ast started message", ctx.UserId)
 				continue
 			}
 
 			code := mp["code"]
-			if code == exceedUploadSpeedLimitCode {
+			if code == "100001" {
 				dglogger.Errorf(ctx, "[userId: %d] iflytek ast exceed upload speed limit", ctx.UserId)
 				continue
 			}
@@ -92,8 +89,13 @@ func (c *Client) AstReadMessage(ctx *dgctx.DgContext, cn *websocket.Conn) error 
 	}
 }
 
-func (c *Client) AstEnd(ctx *dgctx.DgContext, cn *websocket.Conn) error {
-	dglogger.Infof(ctx, "send end message to iflytek ast")
+func (c *Client) AstWriteStarted(ctx *dgctx.DgContext, cn *websocket.Conn) error {
+	dglogger.Infof(ctx, "send started message")
+	return cn.WriteMessage(websocket.TextMessage, []byte("{\"action\":\"started\"}"))
+}
+
+func (c *Client) AstWriteEnd(ctx *dgctx.DgContext, cn *websocket.Conn) error {
+	dglogger.Infof(ctx, "send end message")
 	return cn.WriteMessage(websocket.TextMessage, []byte("{\"end\":true}"))
 }
 
