@@ -85,9 +85,7 @@ func (ar *AstResult) CombineFinalWords(ctx *dgctx.DgContext) string {
 					if len(ws.Cw) > 0 {
 						for _, cw := range ws.Cw {
 							finalWords = finalWords + cw.W
-							if cw.Rl != "" && cw.Rl != "0" {
-								ctx.SetExtraKeyValue(CurrentRoleKey, cw.Rl)
-							}
+							SetCurrentRole(ctx, cw.Rl)
 						}
 					}
 				}
@@ -97,9 +95,9 @@ func (ar *AstResult) CombineFinalWords(ctx *dgctx.DgContext) string {
 
 	finalWords = deleteStartPunctuation(finalWords)
 
-	currentRole := ctx.GetExtraValue(CurrentRoleKey)
-	if currentRole != nil && currentRole != "" && currentRole != "0" {
-		finalWords = "说话人" + currentRole.(string) + ": " + finalWords
+	currentRole := GetCurrentRole(ctx)
+	if currentRole != "" && currentRole != "0" {
+		finalWords = "说话人" + currentRole + ": " + finalWords
 	}
 
 	return finalWords
@@ -227,6 +225,29 @@ func GetContextId(ctx *dgctx.DgContext) string {
 	}
 
 	return ctxId.(string)
+}
+
+func SetCurrentRole(ctx *dgctx.DgContext, currentRole string) bool {
+	if currentRole == "" || currentRole == "0" {
+		return false
+	}
+
+	oriCurrentRole := GetCurrentRole(ctx)
+	if oriCurrentRole != "" && oriCurrentRole == currentRole {
+		return false
+	}
+
+	ctx.SetExtraKeyValue(CurrentRoleKey, currentRole)
+	return true
+}
+
+func GetCurrentRole(ctx *dgctx.DgContext) string {
+	currentRole := ctx.GetExtraValue(CurrentRoleKey)
+	if currentRole == nil {
+		return ""
+	}
+
+	return currentRole.(string)
 }
 
 func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, forwardConn *websocket.Conn, bizKey string, getBizIdFunc GetBizIdFunc, saveAstStartedMetaFunc SaveAstStartedMetaFunc, consumeAstResultFunc ConsumeAstResultFunc) {
