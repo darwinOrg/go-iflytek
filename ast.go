@@ -94,6 +94,9 @@ func (ar *AstResult) CombineFinalWords(ctx *dgctx.DgContext) string {
 	}
 
 	finalWords = deleteStartPunctuation(finalWords)
+	if finalWords == "" {
+		return ""
+	}
 
 	currentRole := GetCurrentRole(ctx)
 	if currentRole != "" && currentRole != "0" {
@@ -325,6 +328,10 @@ func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, forwardConn *web
 }
 
 func deleteStartPunctuation(str string) string {
+	if str == "" {
+		return ""
+	}
+
 	for _, p := range punctuations {
 		after, found := strings.CutPrefix(str, p)
 		if found {
