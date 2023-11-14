@@ -273,11 +273,12 @@ func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, forwardConn *web
 			}
 
 			if astResult != nil && consumeAstResultFunc != nil {
-				err := consumeAstResultFunc(ctx, astResult)
-				if err != nil {
-					dglogger.Errorf(ctx, "[%s: %d] consume ast message[%s] error: %v", bizKey, bizId, string(data), err)
-					continue
-				}
+				go func() {
+					err := consumeAstResultFunc(ctx, astResult)
+					if err != nil {
+						dglogger.Errorf(ctx, "[%s: %d] consume ast message[%s] error: %v", bizKey, bizId, string(data), err)
+					}
+				}()
 			}
 
 			continue
