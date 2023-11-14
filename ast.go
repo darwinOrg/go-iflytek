@@ -7,6 +7,7 @@ import (
 	"github.com/darwinOrg/go-common/model"
 	"github.com/darwinOrg/go-common/utils"
 	dglogger "github.com/darwinOrg/go-logger"
+	dgws "github.com/darwinOrg/go-websocket"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"net/url"
@@ -152,13 +153,18 @@ func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) strin
 	return c.Config.Host + "/ast?" + paramsStr
 }
 
-func AstReadMessage(ctx *dgctx.DgContext, cn *websocket.Conn, consumeFunc func(*dgctx.DgContext, *AstResult) error) error {
+func AstReadMessage(ctx *dgctx.DgContext, cn *websocket.Conn, consumeFunc func(*dgctx.DgContext, *AstResult) error) {
 	for {
+		if dgws.IsWsEnded(ctx) {
+			dglogger.Infof(ctx, "[userId: %d] websocket already ended")
+			return
+		}
+
 		mt, data, err := cn.ReadMessage()
 
 		if mt == websocket.CloseMessage || mt == -1 {
 			dglogger.Infof(ctx, "[userId: %d] received iflytek ast close message, error: %v", ctx.UserId, err)
-			return nil
+			return
 		}
 
 		if mt == websocket.TextMessage {
