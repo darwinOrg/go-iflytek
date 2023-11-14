@@ -16,14 +16,14 @@ import (
 )
 
 type RoleType int
-type AstResultType int
+type AstResultType string
 
 const (
 	RoleTypeClose RoleType = 0
 	RoleTypeOpen  RoleType = 2
 
-	AstResultTypeFinal  AstResultType = 0
-	AstResultTypeMiddle AstResultType = 1
+	AstResultTypeFinal  AstResultType = "0"
+	AstResultTypeMiddle AstResultType = "1"
 )
 
 type AstParamConfig struct {
@@ -156,7 +156,7 @@ func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) strin
 func AstReadMessage(ctx *dgctx.DgContext, cn *websocket.Conn, consumeFunc func(*dgctx.DgContext, *AstResult) error) {
 	for {
 		if dgws.IsWsEnded(ctx) {
-			dglogger.Infof(ctx, "[userId: %d] websocket already ended")
+			dglogger.Infof(ctx, "[userId: %d] websocket already ended", ctx.UserId)
 			return
 		}
 
@@ -168,7 +168,7 @@ func AstReadMessage(ctx *dgctx.DgContext, cn *websocket.Conn, consumeFunc func(*
 		}
 
 		if mt == websocket.TextMessage {
-			dglogger.Infof(ctx, "[userId: %d] receive iflytek ast message: %s", string(data))
+			dglogger.Infof(ctx, "[userId: %d] receive iflytek ast message: %s", ctx.UserId, string(data))
 			var mp map[string]any
 			err := json.Unmarshal(data, &mp)
 			if err != nil {
