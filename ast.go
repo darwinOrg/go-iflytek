@@ -19,7 +19,7 @@ type RoleType int
 type AstResultType string
 type GetBizIdFunc func(ctx *dgctx.DgContext) int64
 type ConsumeAstResultFunc func(*dgctx.DgContext, *AstResult) error
-type SaveAstStartedMetaFunc func(int64, map[string]any) error
+type SaveAstStartedMetaFunc func(int64, string, string) error
 
 const (
 	RoleTypeClose RoleType = 0
@@ -249,10 +249,12 @@ func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, forwardConn *web
 			if action == "started" {
 				dglogger.Infof(ctx, "[%s: %d] received iflytek ast started message", bizKey, bizId)
 				if saveAstStartedMetaFunc != nil {
+					contextId := mp[ContextIdKey].(string)
+					sessionId := mp[SessionIdKey].(string)
 					go func() {
-						err := saveAstStartedMetaFunc(bizId, mp)
+						err := saveAstStartedMetaFunc(bizId, contextId, sessionId)
 						if err != nil {
-							dglogger.Errorf(ctx, "[%s: %d] save ast started meta info error: %v", bizKey, bizId, err)
+							dglogger.Errorf(ctx, "[%s: %d] save ast started meta[contextId: %s, sessionId: %s] error: %v", bizKey, bizId, contextId, sessionId, err)
 						}
 					}()
 				}
