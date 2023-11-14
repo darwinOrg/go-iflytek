@@ -230,6 +230,19 @@ func GetContextId(ctx *dgctx.DgContext) string {
 	return ctxId.(string)
 }
 
+func SetSessionId(ctx *dgctx.DgContext, sessionId string) {
+	ctx.SetExtraKeyValue(SessionIdKey, sessionId)
+}
+
+func GetSessionId(ctx *dgctx.DgContext) string {
+	sessionId := ctx.GetExtraValue(SessionIdKey)
+	if sessionId == nil {
+		return ""
+	}
+
+	return sessionId.(string)
+}
+
 func SetCurrentRole(ctx *dgctx.DgContext, currentRole string) bool {
 	if currentRole == "" || currentRole == "0" {
 		return false
