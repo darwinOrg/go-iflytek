@@ -13,13 +13,14 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type RoleType int
 type AstResultType string
 type GetBizIdFunc func(ctx *dgctx.DgContext) int64
 type SaveAstStartedMetaFunc func(*dgctx.DgContext, int64, string, string) error
-type ConsumeAstResultFunc func(*dgctx.DgContext, *AstResult) error
+type ConsumeAstResultFunc func(*dgctx.DgContext, *AstResult, time.Time) error
 
 const (
 	RoleTypeClose RoleType = 0
@@ -324,7 +325,7 @@ func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, forwardConn *web
 
 			if astResult != nil && consumeAstResultFunc != nil {
 				go func() {
-					err := consumeAstResultFunc(ctx, astResult)
+					err := consumeAstResultFunc(ctx, astResult, time.Now())
 					if err != nil {
 						dglogger.Errorf(ctx, "[%s: %d] consume ast message[%s] error: %v", bizKey, bizId, string(data), err)
 					}
