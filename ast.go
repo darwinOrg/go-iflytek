@@ -18,8 +18,8 @@ import (
 type RoleType int
 type AstResultType string
 type GetBizIdFunc func(ctx *dgctx.DgContext) int64
+type SaveAstStartedMetaFunc func(*dgctx.DgContext, int64, string, string) error
 type ConsumeAstResultFunc func(*dgctx.DgContext, *AstResult) error
-type SaveAstStartedMetaFunc func(int64, string, string) error
 
 const (
 	RoleTypeClose RoleType = 0
@@ -287,7 +287,7 @@ func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, forwardConn *web
 					contextId := mp[ContextIdKey].(string)
 					sessionId := mp[SessionIdKey].(string)
 					go func() {
-						err := saveAstStartedMetaFunc(bizId, contextId, sessionId)
+						err := saveAstStartedMetaFunc(ctx, bizId, contextId, sessionId)
 						if err != nil {
 							dglogger.Errorf(ctx, "[%s: %d] save ast started meta[contextId: %s, sessionId: %s] error: %v", bizKey, bizId, contextId, sessionId, err)
 						}
