@@ -187,8 +187,18 @@ func IsAstEndMessage(mt int, data []byte) bool {
 	return false
 }
 
-func SetContextId(ctx *dgctx.DgContext, contextId any) {
+func SetContextId(ctx *dgctx.DgContext, contextId string) bool {
+	if contextId == "" {
+		return false
+	}
+
+	oriContextId := GetContextId(ctx)
+	if oriContextId != "" && oriContextId == contextId {
+		return false
+	}
+
 	ctx.SetExtraKeyValue(ContextIdKey, contextId)
+	return true
 }
 
 func GetContextId(ctx *dgctx.DgContext) string {
