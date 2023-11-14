@@ -23,7 +23,11 @@ const (
 
 	AstResultTypeFinal  AstResultType = "0"
 	AstResultTypeMiddle AstResultType = "1"
+
+	ContextIdKey = "contextId"
 )
+
+var punctuations = []string{",", ".", "?", "!", ";", ":", "'", "\"", "(", ")", "{", "}", "[", "]", "<", ">", "@", "#", "$", "%", "^", "&", "*", "+", "=", "-", "_", "|", "~", "，", "。", "？", "！", "；", "：", "“", "”", "‘", "’", "《", "》", "（", "）", "【", "】"}
 
 type AstParamConfig struct {
 	Lang           string   `json:"lang"`
@@ -79,7 +83,7 @@ func (ar *AstResult) CombineFinalWords() string {
 		}
 	}
 
-	return combinedWords
+	return deleteStartPunctuation(combinedWords)
 }
 
 func (c *Client) AstConnect(ctx *dgctx.DgContext, config *AstParamConfig) (*websocket.Conn, error) {
@@ -181,4 +185,28 @@ func IsAstEndMessage(mt int, data []byte) bool {
 	}
 
 	return false
+}
+
+func SetContextId(ctx *dgctx.DgContext, contextId any) {
+	ctx.SetExtraKeyValue(ContextIdKey, contextId)
+}
+
+func GetContextId(ctx *dgctx.DgContext) string {
+	ctxId := ctx.GetExtraValue(ContextIdKey)
+	if ctxId == nil {
+		return ""
+	}
+
+	return ctxId.(string)
+}
+
+func deleteStartPunctuation(str string) string {
+	for _, p := range punctuations {
+		after, found := strings.CutPrefix(str, p)
+		if found {
+			return after
+		}
+	}
+
+	return str
 }
