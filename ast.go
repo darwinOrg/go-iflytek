@@ -7,7 +7,6 @@ import (
 	"github.com/darwinOrg/go-common/model"
 	"github.com/darwinOrg/go-common/utils"
 	dglogger "github.com/darwinOrg/go-logger"
-	dgws "github.com/darwinOrg/go-websocket"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"net/url"
@@ -153,71 +152,13 @@ func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) strin
 	return c.Config.Host + "/ast?" + paramsStr
 }
 
-func AstReadMessage(ctx *dgctx.DgContext, cn *websocket.Conn, consumeFunc func(*dgctx.DgContext, *AstResult) error) {
-	for {
-		if dgws.IsWsEnded(ctx) {
-			dglogger.Infof(ctx, "[userId: %d] websocket already ended", ctx.UserId)
-			return
-		}
-
-		mt, data, err := cn.ReadMessage()
-
-		if mt == websocket.CloseMessage || mt == -1 {
-			dglogger.Infof(ctx, "[userId: %d] received iflytek ast close message, error: %v", ctx.UserId, err)
-			return
-		}
-
-		if mt == websocket.TextMessage {
-			dglogger.Infof(ctx, "[userId: %d] receive iflytek ast message: %s", ctx.UserId, string(data))
-			var mp map[string]any
-			err := json.Unmarshal(data, &mp)
-			if err != nil {
-				dglogger.Errorf(ctx, "[userId: %d] unmarshal message[%s] error: %v", ctx.UserId, string(data), err)
-				continue
-			}
-
-			action := mp["action"]
-			if action == "started" {
-				dglogger.Infof(ctx, "[userId: %d] received iflytek ast started message", ctx.UserId)
-				continue
-			}
-
-			code := mp["code"]
-			if code == "100001" {
-				dglogger.Errorf(ctx, "[userId: %d] iflytek ast exceed upload speed limit", ctx.UserId)
-				continue
-			}
-
-			astResult, err := utils.ConvertJsonBytesToBean[AstResult](data)
-			if err != nil {
-				dglogger.Errorf(ctx, "[userId: %d] unmarshal message[%s] error: %v", ctx.UserId, string(data), err)
-				continue
-			}
-
-			if astResult != nil {
-				err := consumeFunc(ctx, astResult)
-				if err != nil {
-					dglogger.Errorf(ctx, "[userId: %d] handle message[%s] error: %v", ctx.UserId, string(data), err)
-					continue
-				}
-			}
-
-			continue
-		}
-
-		if err != nil {
-			dglogger.Errorf(ctx, "read message error: %v", err)
-		}
-	}
-}
-
 func AstWriteStarted(ctx *dgctx.DgContext, cn *websocket.Conn) error {
-	dglogger.Infof(ctx, "send started message")
+	dglogger.Infof(ctx, "send ast started message")
 	return cn.WriteMessage(websocket.TextMessage, []byte("{\"action\":\"started\"}"))
 }
 
 func AstWriteEnd(ctx *dgctx.DgContext, cn *websocket.Conn) error {
-	dglogger.Infof(ctx, "send end message")
+	dglogger.Infof(ctx, "send ast end message")
 	return cn.WriteMessage(websocket.TextMessage, []byte("{\"end\":true}"))
 }
 
