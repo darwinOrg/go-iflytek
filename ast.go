@@ -25,6 +25,9 @@ const (
 	AstResultTypeMiddle AstResultType = "1"
 
 	ContextIdKey = "contextId"
+
+	ExceedUploadSpeedLimitCode = "100001"
+	UnknownErrorCode           = "999999"
 )
 
 var punctuations = []string{",", ".", "?", "!", ";", ":", "'", "\"", "(", ")", "{", "}", "[", "]", "<", ">", "@", "#", "$", "%", "^", "&", "*", "+", "=", "-", "_", "|", "~", "，", "。", "？", "！", "；", "：", "“", "”", "‘", "’", "《", "》", "（", "）", "【", "】"}
