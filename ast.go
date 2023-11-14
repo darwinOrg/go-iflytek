@@ -75,7 +75,8 @@ type AstResult struct {
 }
 
 func (ar *AstResult) CombineFinalWords() string {
-	var combinedWords string
+	var finalWords string
+	var currentRole string
 
 	if ar.Cn.St.Type == AstResultTypeFinal && len(ar.Cn.St.Rt) > 0 {
 		for _, rt := range ar.Cn.St.Rt {
@@ -83,7 +84,8 @@ func (ar *AstResult) CombineFinalWords() string {
 				for _, ws := range rt.Ws {
 					if len(ws.Cw) > 0 {
 						for _, cw := range ws.Cw {
-							combinedWords = combinedWords + cw.W
+							finalWords = finalWords + cw.W
+							currentRole = cw.Rl
 						}
 					}
 				}
@@ -91,7 +93,12 @@ func (ar *AstResult) CombineFinalWords() string {
 		}
 	}
 
-	return deleteStartPunctuation(combinedWords)
+	finalWords = deleteStartPunctuation(finalWords)
+	if currentRole != "" && currentRole != "0" {
+		finalWords = "说话人" + currentRole + "：" + finalWords
+	}
+
+	return finalWords
 }
 
 func (c *Client) AstConnect(ctx *dgctx.DgContext, config *AstParamConfig) (*websocket.Conn, error) {
