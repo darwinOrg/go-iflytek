@@ -28,8 +28,9 @@ const (
 	AstResultTypeFinal  AstResultType = "0"
 	AstResultTypeMiddle AstResultType = "1"
 
-	ContextIdKey = "contextId"
-	SessionIdKey = "sessionId"
+	ContextIdKey   = "contextId"
+	SessionIdKey   = "sessionId"
+	CurrentRoleKey = "currentRole"
 
 	ExceedUploadSpeedLimitCode = "100001"
 	UnknownErrorCode           = "999999"
@@ -74,9 +75,8 @@ type AstResult struct {
 	Ls bool `json:"ls"`
 }
 
-func (ar *AstResult) CombineFinalWords() string {
+func (ar *AstResult) CombineFinalWords(ctx *dgctx.DgContext) string {
 	var finalWords string
-	var currentRole string
 
 	if ar.Cn.St.Type == AstResultTypeFinal && len(ar.Cn.St.Rt) > 0 {
 		for _, rt := range ar.Cn.St.Rt {
@@ -85,7 +85,9 @@ func (ar *AstResult) CombineFinalWords() string {
 					if len(ws.Cw) > 0 {
 						for _, cw := range ws.Cw {
 							finalWords = finalWords + cw.W
-							currentRole = cw.Rl
+							if cw.Rl != "" && cw.Rl != "0" {
+								ctx.SetExtraKeyValue(CurrentRoleKey, cw.Rl)
+							}
 						}
 					}
 				}
@@ -94,8 +96,10 @@ func (ar *AstResult) CombineFinalWords() string {
 	}
 
 	finalWords = deleteStartPunctuation(finalWords)
-	if currentRole != "" && currentRole != "0" {
-		finalWords = "说话人" + currentRole + "：" + finalWords
+
+	currentRole := ctx.GetExtraValue(CurrentRoleKey)
+	if currentRole != nil && currentRole != "" && currentRole != "0" {
+		finalWords = "说话人" + currentRole.(string) + ": " + finalWords
 	}
 
 	return finalWords
