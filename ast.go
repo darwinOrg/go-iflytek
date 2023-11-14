@@ -7,6 +7,7 @@ import (
 	"github.com/darwinOrg/go-common/model"
 	"github.com/darwinOrg/go-common/utils"
 	dglogger "github.com/darwinOrg/go-logger"
+	dgws "github.com/darwinOrg/go-websocket"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"net/url"
@@ -16,6 +17,9 @@ import (
 
 type RoleType int
 type AstResultType string
+type GetBizIdFunc func(ctx *dgctx.DgContext) int64
+type ConsumeAstResultFunc func(*dgctx.DgContext, *AstResult) error
+type SaveAstStartedMetaFunc func(int64, map[string]any) error
 
 const (
 	RoleTypeClose RoleType = 0
@@ -25,6 +29,7 @@ const (
 	AstResultTypeMiddle AstResultType = "1"
 
 	ContextIdKey = "contextId"
+	SessionIdKey = "sessionId"
 
 	ExceedUploadSpeedLimitCode = "100001"
 	UnknownErrorCode           = "999999"
@@ -211,6 +216,77 @@ func GetContextId(ctx *dgctx.DgContext) string {
 	}
 
 	return ctxId.(string)
+}
+
+func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, forwardConn *websocket.Conn, bizKey string, getBizIdFunc GetBizIdFunc, saveAstStartedMetaFunc SaveAstStartedMetaFunc, consumeAstResultFunc ConsumeAstResultFunc) {
+	bizId := getBizIdFunc(ctx)
+
+	for {
+		if dgws.IsWsEnded(ctx) {
+			dglogger.Infof(ctx, "[%s: %d] websocket already ended", bizKey, bizId)
+			return
+		}
+
+		mt, data, err := forwardConn.ReadMessage()
+		if mt == websocket.CloseMessage || mt == -1 {
+			dglogger.Infof(ctx, "[%s: %d] received iflytek ast close message, error: %v", bizKey, bizId, err)
+			dgws.SetWsEnded(ctx)
+			conn.WriteMessage(websocket.CloseMessage, data)
+			return
+		}
+		conn.WriteMessage(mt, data)
+
+		if mt == websocket.TextMessage {
+			dglogger.Infof(ctx, "[%s: %d] receive iflytek ast message: %s", bizKey, bizId, string(data))
+			var mp map[string]any
+			err := json.Unmarshal(data, &mp)
+			if err != nil {
+				dglogger.Errorf(ctx, "[%s: %d] unmarshal message[%s] error: %v", bizKey, bizId, string(data), err)
+				continue
+			}
+
+			action := mp["action"]
+			if action == "started" {
+				dglogger.Infof(ctx, "[%s: %d] received iflytek ast started message", bizKey, bizId)
+				if saveAstStartedMetaFunc != nil {
+					go func() {
+						err := saveAstStartedMetaFunc(bizId, mp)
+						if err != nil {
+							dglogger.Errorf(ctx, "[%s: %d] save ast started meta info error: %v", bizKey, bizId, err)
+						}
+					}()
+				}
+
+				continue
+			}
+
+			code := mp["code"]
+			if code == ExceedUploadSpeedLimitCode {
+				dglogger.Errorf(ctx, "[%s: %d] iflytek ast exceed upload speed limit", bizKey, bizId)
+				continue
+			}
+
+			astResult, err := utils.ConvertJsonBytesToBean[AstResult](data)
+			if err != nil {
+				dglogger.Errorf(ctx, "[%s: %d] unmarshal message[%s] error: %v", bizKey, bizId, string(data), err)
+				continue
+			}
+
+			if astResult != nil && consumeAstResultFunc != nil {
+				err := consumeAstResultFunc(ctx, astResult)
+				if err != nil {
+					dglogger.Errorf(ctx, "[%s: %d] consume ast message[%s] error: %v", bizKey, bizId, string(data), err)
+					continue
+				}
+			}
+
+			continue
+		}
+
+		if err != nil {
+			dglogger.Errorf(ctx, "[%s: %d] read ast message error: %v", bizKey, bizId, err)
+		}
+	}
 }
 
 func deleteStartPunctuation(str string) string {
