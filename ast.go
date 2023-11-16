@@ -101,7 +101,7 @@ func (ar *AstResult) CombineFinalWords(ctx *dgctx.DgContext) string {
 
 	currentRole := GetCurrentRole(ctx)
 	if currentRole != "" && currentRole != "0" {
-		finalWords = "说话人" + currentRole + ": " + finalWords
+		finalWords = "发言人" + currentRole + ": " + finalWords
 	}
 
 	return finalWords
