@@ -76,10 +76,14 @@ type AstResult struct {
 	Ls bool `json:"ls"`
 }
 
+func (ar *AstResult) HasFinalWords() bool {
+	return ar.Cn.St.Type == AstResultTypeFinal && len(ar.Cn.St.Rt) > 0
+}
+
 func (ar *AstResult) CombineFinalWords(ctx *dgctx.DgContext) string {
 	var finalWords string
 
-	if ar.Cn.St.Type == AstResultTypeFinal && len(ar.Cn.St.Rt) > 0 {
+	if ar.HasFinalWords() {
 		for _, rt := range ar.Cn.St.Rt {
 			if len(rt.Ws) > 0 {
 				for _, ws := range rt.Ws {
@@ -324,12 +328,14 @@ func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, forwardConn *web
 			}
 
 			if astResult != nil && consumeAstResultFunc != nil {
-				go func() {
-					err := consumeAstResultFunc(ctx, astResult, time.Now())
-					if err != nil {
-						dglogger.Errorf(ctx, "[%s: %d] consume ast message[%s] error: %v", bizKey, bizId, string(data), err)
-					}
-				}()
+				if astResult.HasFinalWords() {
+					go func() {
+						err := consumeAstResultFunc(ctx, astResult, time.Now())
+						if err != nil {
+							dglogger.Errorf(ctx, "[%s: %d] consume ast message[%s] error: %v", bizKey, bizId, string(data), err)
+						}
+					}()
+				}
 			}
 
 			continue
