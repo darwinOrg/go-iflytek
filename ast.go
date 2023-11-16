@@ -347,7 +347,7 @@ func deleteStartPunctuation(str string) string {
 	}
 
 	for _, p := range punctuations {
-		after, found := strings.CutPrefix(str, p)
+		_, after, found := strings.Cut(str, p)
 		if found {
 			return after
 		}
