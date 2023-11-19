@@ -26,8 +26,8 @@ github.com/darwinOrg/go-validator-ext v0.0.3 h1:mS/wiYITKJ//FO+XCcEWabWibwPSlVt+
 github.com/darwinOrg/go-validator-ext v0.0.3/go.mod h1:AY2v44qPq0a0fqwk5a8MCckCJ4MXyJQPfoYT6dUtdPQ=
 github.com/darwinOrg/go-web v0.0.24 h1:fET2PtHjAd3Z9vt3NPAoY37CelIQjgb5StylpY0uKCE=
 github.com/darwinOrg/go-web v0.0.24/go.mod h1:j9hOLDQzopqES+LVzMGPCp4FloOY5d2vPATGTjULMLw=
-github.com/darwinOrg/go-websocket v0.0.28 h1:P+liFCGREw3hlr05LlbNxmWIS65VLPgCTOLHYfZ2erY=
-github.com/darwinOrg/go-websocket v0.0.28/go.mod h1:yKYnfqGiVucliyE3OLR4ey9GDpotfLFIqyIes7gFg7E=
+github.com/darwinOrg/go-websocket v0.0.29 h1:I5xdrd5qy5Zd6pwN5HYsqaMeVNQaZ4WkHyAFaJAeBeo=
+github.com/darwinOrg/go-websocket v0.0.29/go.mod h1:yKYnfqGiVucliyE3OLR4ey9GDpotfLFIqyIes7gFg7E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
