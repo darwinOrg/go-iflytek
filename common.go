@@ -3,6 +3,7 @@ package dgkdxf
 import (
 	"github.com/darwinOrg/go-common/model"
 	"github.com/darwinOrg/go-common/utils"
+	dghttp "github.com/darwinOrg/go-httpclient"
 	"time"
 )
 
@@ -16,6 +17,12 @@ const (
 	timeFormat     = "2006-01-02T15:04:05Z0700"
 	apiSuccessCode = "000000"
 )
+
+var httpClient *dghttp.DgHttpClient
+
+func init() {
+	httpClient = dghttp.NewHttpClient(true)
+}
 
 type ClientConfig struct {
 	AppId           string `json:"appId"`

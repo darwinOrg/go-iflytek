@@ -55,7 +55,8 @@ type DeleteFeatureResponse struct {
 func (c *Client) RegisterFeature(ctx *dgctx.DgContext, req *RegisterFeatureRequest) (string, error) {
 	params, header := c.buildFeatureParamsAndHeader(ctx)
 	url := c.Config.Host + "/res/feature/v1/register?" + utils.FormUrlEncodedParams(params)
-	rt, err := dghttp.DoPostJsonToStruct[FeatureResult[RegisterFeatureResponse]](ctx, url, req, header)
+	dghttp.SetHttpClient(ctx, httpClient)
+	rt, err := dghttp.DoPostJsonToStruct[FeatureResult[string]](ctx, url, req, header)
 	if err != nil {
 		return "", err
 	}
@@ -64,17 +65,23 @@ func (c *Client) RegisterFeature(ctx *dgctx.DgContext, req *RegisterFeatureReque
 		return "", errors.New(rt.Desc)
 	}
 
-	if rt.Data.Status == featureFailStatus || rt.Data.FeatureId == "" {
+	resp, err := utils.ConvertJsonStringToBean[RegisterFeatureResponse](*rt.Data)
+	if err != nil {
+		return "", err
+	}
+
+	if resp.Status == featureFailStatus || resp.FeatureId == "" {
 		return "", errors.New("注册失败")
 	}
 
-	return rt.Data.FeatureId, nil
+	return resp.FeatureId, nil
 }
 
 func (c *Client) UpdateFeature(ctx *dgctx.DgContext, req *UpdateFeatureRequest) error {
 	params, header := c.buildFeatureParamsAndHeader(ctx)
 	url := c.Config.Host + "/res/feature/v1/update?" + utils.FormUrlEncodedParams(params)
-	rt, err := dghttp.DoPostJsonToStruct[FeatureResult[UpdateFeatureResponse]](ctx, url, req, header)
+	dghttp.SetHttpClient(ctx, httpClient)
+	rt, err := dghttp.DoPostJsonToStruct[FeatureResult[string]](ctx, url, req, header)
 	if err != nil {
 		return err
 	}
@@ -83,7 +90,12 @@ func (c *Client) UpdateFeature(ctx *dgctx.DgContext, req *UpdateFeatureRequest) 
 		return errors.New(rt.Desc)
 	}
 
-	if rt.Data.Status == featureFailStatus {
+	resp, err := utils.ConvertJsonStringToBean[UpdateFeatureResponse](*rt.Data)
+	if err != nil {
+		return err
+	}
+
+	if resp.Status == featureFailStatus {
 		return errors.New("更新失败")
 	}
 
@@ -94,7 +106,8 @@ func (c *Client) DeleteFeature(ctx *dgctx.DgContext, featureIds []string) []stri
 	req := map[string]any{"feature_ids": featureIds}
 	params, header := c.buildFeatureParamsAndHeader(ctx)
 	url := c.Config.Host + "/res/feature/v1/update?" + utils.FormUrlEncodedParams(params)
-	rt, err := dghttp.DoPostJsonToStruct[FeatureResult[DeleteFeatureResponse]](ctx, url, req, header)
+	dghttp.SetHttpClient(ctx, httpClient)
+	rt, err := dghttp.DoPostJsonToStruct[FeatureResult[string]](ctx, url, req, header)
 	if err != nil {
 		return featureIds
 	}
@@ -103,11 +116,16 @@ func (c *Client) DeleteFeature(ctx *dgctx.DgContext, featureIds []string) []stri
 		return featureIds
 	}
 
-	if rt.Data.DelFailIds == "" {
+	resp, err := utils.ConvertJsonStringToBean[DeleteFeatureResponse](*rt.Data)
+	if err != nil {
+		return featureIds
+	}
+
+	if resp.DelFailIds == "" {
 		return []string{}
 	}
 
-	return strings.Split(rt.Data.DelFailIds, ";")
+	return strings.Split(resp.DelFailIds, ";")
 }
 
 func (c *Client) buildFeatureParamsAndHeader(ctx *dgctx.DgContext) ([]*model.KeyValuePair[string, any], map[string]string) {
