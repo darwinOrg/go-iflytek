@@ -27,7 +27,7 @@ func TestBuildAstUri(t *testing.T) {
 		Samplerate:     "16000",
 		RoleType:       dgkdxf.RoleTypeOpen,
 		ContextId:      "",
-		FeatureIds:     nil,
+		FeatureIds:     []string{"20231130092311300926BB8003FA00000"},
 		HotWordId:      "",
 		SourceInfo:     "",
 		FilePath:       "",
