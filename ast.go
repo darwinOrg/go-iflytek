@@ -46,7 +46,7 @@ type AstParamConfig struct {
 	Samplerate     string   `json:"samplerate"`
 	RoleType       RoleType `json:"roleType"`
 	ContextId      string   `json:"contextId"`
-	FeatureIds     []string `json:"featureIds"`
+	FeatureIds     string   `json:"featureIds"`
 	HotWordId      string   `json:"hotWordId"`
 	SourceInfo     string   `json:"sourceInfo"`
 	FilePath       string   `json:"filePath"`
@@ -161,7 +161,7 @@ func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) strin
 		},
 		{
 			Key:   "featureIds",
-			Value: strings.Join(config.FeatureIds, ","),
+			Value: config.FeatureIds,
 		},
 
 		{
