@@ -98,17 +98,7 @@ func (ar *AstResult) CombineFinalWords(ctx *dgctx.DgContext) string {
 		}
 	}
 
-	finalWords = deleteStartPunctuation(finalWords)
-	if finalWords == "" {
-		return ""
-	}
-
-	currentRole := GetCurrentRole(ctx)
-	if currentRole != "" && currentRole != "0" {
-		finalWords = "发言人" + currentRole + ": " + finalWords
-	}
-
-	return finalWords
+	return deleteStartPunctuation(finalWords)
 }
 
 func (c *Client) AstConnect(ctx *dgctx.DgContext, config *AstParamConfig) (*websocket.Conn, error) {

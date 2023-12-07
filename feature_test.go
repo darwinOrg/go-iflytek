@@ -10,7 +10,7 @@ import (
 )
 
 func TestRegisterFeature(t *testing.T) {
-	audioData, _ := os.ReadFile("test.pcm")
+	audioData, _ := os.ReadFile("test.wav")
 	audioDataStr := base64.StdEncoding.EncodeToString(audioData)
 	req := &dgkdxf.RegisterFeatureRequest{
 		AudioData: audioDataStr,
