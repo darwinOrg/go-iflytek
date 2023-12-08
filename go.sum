@@ -16,8 +16,8 @@ github.com/chenzhuoyu/iasm v0.9.1/go.mod h1:Xjy2NpN3h7aUqeqM+woSuuvxmIe6+DDsiNLI
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/darwinOrg/go-common v0.0.30 h1:Sl9NwbmqFlD7OkTzLofeaH8KWn+fWGd/4l4PP8xC4qs=
 github.com/darwinOrg/go-common v0.0.30/go.mod h1:pItL/4ZV0bU64N2qD9ACpvDlYjeomAbheIzPXKqbb88=
-github.com/darwinOrg/go-httpclient v0.0.20 h1:7HluQik/79bvMzXgV3CYzcTV3Iph2EaeMC8eb3oAGM4=
-github.com/darwinOrg/go-httpclient v0.0.20/go.mod h1:Tr5dc0qg2OY3utuqbCvrqWdSM5gfCpyfBum/mWdEX6g=
+github.com/darwinOrg/go-httpclient v0.1.0 h1:8Uwq8x0zGVvtu1+wwVpr0IgZZ72BzsAzzXZQ3DW8j20=
+github.com/darwinOrg/go-httpclient v0.1.0/go.mod h1:Tr5dc0qg2OY3utuqbCvrqWdSM5gfCpyfBum/mWdEX6g=
 github.com/darwinOrg/go-logger v0.0.5 h1:lnbPEGuUAhkqSbktHOtv8Lxe8RJaeF4KY/uud29hVE4=
 github.com/darwinOrg/go-logger v0.0.5/go.mod h1:dwla5VIX7XcW296g91XS+T+Vomix3YijQz9eYuLXtL8=
 github.com/darwinOrg/go-monitor v0.0.3 h1:zSgB1Tv/O2MIDq0xWPipJWvZsCI23nsn0FecSM59GBs=

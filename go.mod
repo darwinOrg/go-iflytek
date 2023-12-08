@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/darwinOrg/go-common v0.0.30
-	github.com/darwinOrg/go-httpclient v0.0.20
+	github.com/darwinOrg/go-httpclient v0.1.0
 	github.com/darwinOrg/go-logger v0.0.5
 	github.com/darwinOrg/go-websocket v0.1.3
 	github.com/google/uuid v1.4.0
