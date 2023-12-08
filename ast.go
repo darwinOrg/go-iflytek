@@ -270,12 +270,15 @@ func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, forwardConn *web
 			return
 		}
 
+		if dgws.IsForwardWsEnded(ctx) {
+			time.Sleep(time.Second)
+			continue
+		}
+
 		mt, data, err := forwardConn.ReadMessage()
 		if mt == websocket.CloseMessage || mt == -1 {
 			dglogger.Infof(ctx, "[%s: %d] received iflytek ast close message, error: %v", bizKey, bizId, err)
 			dgws.SetForwardWsEnded(ctx)
-			//conn.WriteMessage(websocket.CloseMessage, data)
-			time.Sleep(time.Second)
 			continue
 		}
 		conn.WriteMessage(mt, data)
