@@ -261,7 +261,7 @@ func GetCurrentRole(ctx *dgctx.DgContext) string {
 	return currentRole.(string)
 }
 
-func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, forwardConn *websocket.Conn, bizKey string, getBizIdFunc GetBizIdFunc, saveAstStartedMetaFunc SaveAstStartedMetaFunc, consumeAstResultFunc ConsumeAstResultFunc) {
+func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, bizKey string, getBizIdFunc GetBizIdFunc, saveAstStartedMetaFunc SaveAstStartedMetaFunc, consumeAstResultFunc ConsumeAstResultFunc) {
 	bizId := getBizIdFunc(ctx)
 
 	for {
@@ -275,6 +275,12 @@ func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, forwardConn *web
 			continue
 		}
 
+		forwardConn := dgws.GetForwardConn(ctx)
+		if forwardConn == nil {
+			dglogger.Infof(ctx, "[%s: %d] forward conn is nil", bizKey, bizId)
+			time.Sleep(time.Second)
+			continue
+		}
 		mt, data, err := forwardConn.ReadMessage()
 		if mt == websocket.CloseMessage || mt == -1 {
 			dglogger.Infof(ctx, "[%s: %d] received iflytek ast close message, error: %v", bizKey, bizId, err)
