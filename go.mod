@@ -3,10 +3,10 @@ module github.com/darwinOrg/go-iflytek
 go 1.19
 
 require (
-	github.com/darwinOrg/go-common v0.0.29
+	github.com/darwinOrg/go-common v0.0.30
 	github.com/darwinOrg/go-httpclient v0.0.20
 	github.com/darwinOrg/go-logger v0.0.5
-	github.com/darwinOrg/go-websocket v0.1.0
+	github.com/darwinOrg/go-websocket v0.1.1
 	github.com/google/uuid v1.4.0
 	github.com/gorilla/websocket v1.5.1
 )
@@ -44,7 +44,7 @@ require (
 	github.com/rolandhe/saber v0.0.4 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
-	github.com/ugorji/go/codec v1.2.11 // indirect
+	github.com/ugorji/go/codec v1.2.12 // indirect
 	golang.org/x/arch v0.6.0 // indirect
 	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
