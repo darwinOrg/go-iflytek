@@ -80,7 +80,7 @@ func (ar *AstResult) HasFinalWords() bool {
 	return ar.Cn.St.Type == AstResultTypeFinal && len(ar.Cn.St.Rt) > 0
 }
 
-func (ar *AstResult) CombineFinalWords(ctx *dgctx.DgContext) string {
+func (ar *AstResult) CombineFinalWords(ctx *dgctx.DgContext, roleType RoleType) string {
 	var finalWords string
 
 	if ar.HasFinalWords() {
@@ -90,7 +90,10 @@ func (ar *AstResult) CombineFinalWords(ctx *dgctx.DgContext) string {
 					if len(ws.Cw) > 0 {
 						for _, cw := range ws.Cw {
 							finalWords = finalWords + cw.W
-							SetCurrentRole(ctx, cw.Rl)
+
+							if roleType == RoleTypeOpen {
+								SetCurrentRole(ctx, cw.Rl)
+							}
 						}
 					}
 				}
