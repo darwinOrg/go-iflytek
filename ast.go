@@ -290,7 +290,7 @@ func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, bizKey string, g
 			dgws.SetForwardWsEnded(ctx)
 			continue
 		}
-		conn.WriteMessage(mt, data)
+		//conn.WriteMessage(mt, data)
 
 		if mt == websocket.TextMessage {
 			dglogger.Infof(ctx, "[%s: %d] receive iflytek ast message: %s", bizKey, bizId, string(data))
@@ -307,12 +307,10 @@ func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, bizKey string, g
 				if saveAstStartedMetaFunc != nil {
 					contextId := mp[ContextIdKey].(string)
 					sessionId := mp[SessionIdKey].(string)
-					go func() {
-						err := saveAstStartedMetaFunc(ctx, contextId, sessionId)
-						if err != nil {
-							dglogger.Errorf(ctx, "[%s: %d] save ast started meta[contextId: %s, sessionId: %s] error: %v", bizKey, bizId, contextId, sessionId, err)
-						}
-					}()
+					err := saveAstStartedMetaFunc(ctx, contextId, sessionId)
+					if err != nil {
+						dglogger.Errorf(ctx, "[%s: %d] save ast started meta[contextId: %s, sessionId: %s] error: %v", bizKey, bizId, contextId, sessionId, err)
+					}
 				}
 
 				continue
@@ -332,12 +330,10 @@ func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, bizKey string, g
 
 			if astResult != nil && consumeAstResultFunc != nil {
 				if astResult.HasFinalWords() {
-					go func() {
-						err := consumeAstResultFunc(ctx, astResult, time.Now())
-						if err != nil {
-							dglogger.Errorf(ctx, "[%s: %d] consume ast message[%s] error: %v", bizKey, bizId, string(data), err)
-						}
-					}()
+					err := consumeAstResultFunc(ctx, astResult, time.Now())
+					if err != nil {
+						dglogger.Errorf(ctx, "[%s: %d] consume ast message[%s] error: %v", bizKey, bizId, string(data), err)
+					}
 				}
 			}
 
