@@ -264,7 +264,7 @@ func GetCurrentRole(ctx *dgctx.DgContext) string {
 	return currentRole.(string)
 }
 
-func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, bizKey string, getBizIdFunc GetBizIdFunc, saveAstStartedMetaFunc SaveAstStartedMetaFunc, consumeAstResultFunc ConsumeAstResultFunc) {
+func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, getBizIdFunc GetBizIdFunc, saveAstStartedMetaFunc SaveAstStartedMetaFunc, consumeAstResultFunc ConsumeAstResultFunc) {
 	bizId := getBizIdFunc(ctx)
 
 	for {
@@ -273,12 +273,12 @@ func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, bizKey string, g
 			return
 		}
 
-		if dgws.IsForwardWsEnded(ctx) {
+		if dgws.IsForwardWsEnded(ctx, forwardMark) {
 			time.Sleep(time.Second)
 			continue
 		}
 
-		forwardConn := dgws.GetForwardConn(ctx)
+		forwardConn := dgws.GetForwardConn(ctx, forwardMark)
 		if forwardConn == nil {
 			dglogger.Infof(ctx, "[%s: %d] forward conn is nil", bizKey, bizId)
 			time.Sleep(time.Second)
@@ -287,7 +287,7 @@ func AstReadMessage(ctx *dgctx.DgContext, conn *websocket.Conn, bizKey string, g
 		mt, data, err := forwardConn.ReadMessage()
 		if mt == websocket.CloseMessage || mt == -1 {
 			dglogger.Infof(ctx, "[%s: %d] received iflytek ast close message, error: %v", bizKey, bizId, err)
-			dgws.SetForwardWsEnded(ctx)
+			dgws.SetForwardWsEnded(ctx, forwardMark)
 			continue
 		}
 		//conn.WriteMessage(mt, data)

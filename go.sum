@@ -28,6 +28,8 @@ github.com/darwinOrg/go-web v0.0.24 h1:fET2PtHjAd3Z9vt3NPAoY37CelIQjgb5StylpY0uK
 github.com/darwinOrg/go-web v0.0.24/go.mod h1:j9hOLDQzopqES+LVzMGPCp4FloOY5d2vPATGTjULMLw=
 github.com/darwinOrg/go-websocket v0.1.4 h1:i6Vf5DhO7bomQgsjp6cZ7PTwB66f2EFitX8gqedUL9M=
 github.com/darwinOrg/go-websocket v0.1.4/go.mod h1:yKYnfqGiVucliyE3OLR4ey9GDpotfLFIqyIes7gFg7E=
+github.com/darwinOrg/go-websocket v0.1.5 h1:zQkVb0+dinCEgS7nvvMamcXqp0ZLs2FjhOhKpIoRM0U=
+github.com/darwinOrg/go-websocket v0.1.5/go.mod h1:qRGhFV5EsTK1nxnVeDcMGtbHo0g0rtTnPygHiMYgtzc=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -69,6 +71,7 @@ github.com/leodido/go-urn v1.2.4 h1:XlAE/cm/ms7TE/VMVoduSpNBoyc2dOxHs5MZSwAN63Q=
 github.com/leodido/go-urn v1.2.4/go.mod h1:7ZrI8mTSeBSHl/UaRyKQW1qZeMgak41ANeCNaVckg+4=
 github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
+github.com/matttproud/golang_protobuf_extensions v1.0.4 h1:mmDVorXM7PCGKw94cs5zkfA9PSy5pEvNWRP0ET0TIVo=
 github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0 h1:jWpvCLoY8Z/e3VKvlsiIGKtc+UG6U5vzxaoagmhXfyg=
 github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0/go.mod h1:QUyp042oQthUoa9bqDv0ER0wrtXnBruoNd7aNjkbP+k=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
