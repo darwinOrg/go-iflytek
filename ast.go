@@ -205,22 +205,22 @@ func IsAstEndMessage(mt int, data []byte) bool {
 	return false
 }
 
-func SetContextId(ctx *dgctx.DgContext, contextId string) bool {
+func SetContextId(ctx *dgctx.DgContext, mark string, contextId string) bool {
 	if contextId == "" {
 		return false
 	}
 
-	oriContextId := GetContextId(ctx)
+	oriContextId := GetContextId(ctx, mark)
 	if oriContextId != "" && oriContextId == contextId {
 		return false
 	}
 
-	ctx.SetExtraKeyValue(ContextIdKey, contextId)
+	ctx.SetExtraKeyValue(ContextIdKey+mark, contextId)
 	return true
 }
 
-func GetContextId(ctx *dgctx.DgContext) string {
-	ctxId := ctx.GetExtraValue(ContextIdKey)
+func GetContextId(ctx *dgctx.DgContext, mark string) string {
+	ctxId := ctx.GetExtraValue(ContextIdKey + mark)
 	if ctxId == nil {
 		return ""
 	}
@@ -228,12 +228,12 @@ func GetContextId(ctx *dgctx.DgContext) string {
 	return ctxId.(string)
 }
 
-func SetSessionId(ctx *dgctx.DgContext, sessionId string) {
-	ctx.SetExtraKeyValue(SessionIdKey, sessionId)
+func SetSessionId(ctx *dgctx.DgContext, mark string, sessionId string) {
+	ctx.SetExtraKeyValue(SessionIdKey+mark, sessionId)
 }
 
-func GetSessionId(ctx *dgctx.DgContext) string {
-	sessionId := ctx.GetExtraValue(SessionIdKey)
+func GetSessionId(ctx *dgctx.DgContext, mark string) string {
+	sessionId := ctx.GetExtraValue(SessionIdKey + mark)
 	if sessionId == nil {
 		return ""
 	}
