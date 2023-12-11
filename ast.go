@@ -178,6 +178,7 @@ func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) strin
 func AstWriteStarted(ctx *dgctx.DgContext, cn *websocket.Conn) error {
 	dglogger.Infof(ctx, "send ast started message")
 	if cn == nil {
+		dglogger.Error(ctx, "websocket conn is nil")
 		return dgerr.SYSTEM_ERROR
 	}
 	return cn.WriteMessage(websocket.TextMessage, []byte("{\"action\":\"started\"}"))
@@ -186,6 +187,7 @@ func AstWriteStarted(ctx *dgctx.DgContext, cn *websocket.Conn) error {
 func AstWriteEnd(ctx *dgctx.DgContext, cn *websocket.Conn) error {
 	dglogger.Infof(ctx, "send ast end message")
 	if cn == nil {
+		dglogger.Error(ctx, "websocket conn is nil")
 		return dgerr.SYSTEM_ERROR
 	}
 	return cn.WriteMessage(websocket.TextMessage, []byte("{\"end\":true}"))
