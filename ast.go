@@ -278,7 +278,7 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, get
 
 	for {
 		if dgws.IsWsEnded(ctx) {
-			dglogger.Infof(ctx, "[%s: %d] websocket already ended", bizKey, bizId)
+			dglogger.Infof(ctx, "[%s: %d, forwardMark: %s] websocket already ended", bizKey, bizId, forwardMark)
 			return
 		}
 
@@ -289,36 +289,36 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, get
 
 		forwardConn := dgws.GetForwardConn(ctx, forwardMark)
 		if forwardConn == nil {
-			dglogger.Debugf(ctx, "[%s: %d] forward conn is nil", bizKey, bizId)
+			dglogger.Debugf(ctx, "[%s: %d, forwardMark: %s] forward conn is nil", bizKey, bizId, forwardMark)
 			time.Sleep(time.Second)
 			continue
 		}
 		mt, data, err := forwardConn.ReadMessage()
 		if mt == websocket.CloseMessage || mt == -1 {
-			dglogger.Infof(ctx, "[%s: %d] received iflytek ast close message, error: %v", bizKey, bizId, err)
+			dglogger.Infof(ctx, "[%s: %d, forwardMark: %s] received iflytek ast close message, error: %v", bizKey, bizId, forwardMark, err)
 			dgws.SetForwardWsEnded(ctx, forwardMark)
 			continue
 		}
 		//conn.WriteMessage(mt, data)
 
 		if mt == websocket.TextMessage {
-			dglogger.Infof(ctx, "[%s: %d] receive iflytek ast message: %s", bizKey, bizId, string(data))
+			dglogger.Infof(ctx, "[%s: %d, forwardMark: %s] receive iflytek ast message: %s", bizKey, bizId, forwardMark, string(data))
 			var mp map[string]any
 			err := json.Unmarshal(data, &mp)
 			if err != nil {
-				dglogger.Errorf(ctx, "[%s: %d] unmarshal message[%s] error: %v", bizKey, bizId, string(data), err)
+				dglogger.Errorf(ctx, "[%s: %d, forwardMark: %s] unmarshal message[%s] error: %v", bizKey, bizId, forwardMark, string(data), err)
 				continue
 			}
 
 			action := mp["action"]
 			if action == "started" {
-				dglogger.Infof(ctx, "[%s: %d] received iflytek ast started message", bizKey, bizId)
+				dglogger.Infof(ctx, "[%s: %d, forwardMark: %s] received iflytek ast started message", bizKey, bizId, forwardMark)
 				if saveAstStartedMetaFunc != nil {
 					contextId := mp[ContextIdKey].(string)
 					sessionId := mp[SessionIdKey].(string)
 					err := saveAstStartedMetaFunc(ctx, contextId, sessionId)
 					if err != nil {
-						dglogger.Errorf(ctx, "[%s: %d] save ast started meta[contextId: %s, sessionId: %s] error: %v", bizKey, bizId, contextId, sessionId, err)
+						dglogger.Errorf(ctx, "[%s: %d, forwardMark: %s] save ast started meta[contextId: %s, sessionId: %s] error: %v", bizKey, bizId, forwardMark, contextId, sessionId, err)
 					}
 				}
 
@@ -327,13 +327,13 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, get
 
 			code := mp["code"]
 			if code == ExceedUploadSpeedLimitCode {
-				dglogger.Errorf(ctx, "[%s: %d] iflytek ast exceed upload speed limit", bizKey, bizId)
+				dglogger.Errorf(ctx, "[%s: %d, forwardMark: %s] iflytek ast exceed upload speed limit", bizKey, bizId, forwardMark)
 				continue
 			}
 
 			astResult, err := utils.ConvertJsonBytesToBean[AstResult](data)
 			if err != nil {
-				dglogger.Errorf(ctx, "[%s: %d] unmarshal message[%s] error: %v", bizKey, bizId, string(data), err)
+				dglogger.Errorf(ctx, "[%s: %d, forwardMark: %s] unmarshal message[%s] error: %v", bizKey, bizId, forwardMark, string(data), err)
 				continue
 			}
 
@@ -341,7 +341,7 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, get
 				if astResult.HasFinalWords() {
 					err := consumeAstResultFunc(ctx, astResult, time.Now())
 					if err != nil {
-						dglogger.Errorf(ctx, "[%s: %d] consume ast message[%s] error: %v", bizKey, bizId, string(data), err)
+						dglogger.Errorf(ctx, "[%s: %d, forwardMark: %s] consume ast message[%s] error: %v", bizKey, bizId, forwardMark, string(data), err)
 					}
 				}
 			}
@@ -350,7 +350,7 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, get
 		}
 
 		if err != nil {
-			dglogger.Errorf(ctx, "[%s: %d] read ast message error: %v", bizKey, bizId, err)
+			dglogger.Errorf(ctx, "[%s: %d, forwardMark: %s] read ast message error: %v", bizKey, bizId, forwardMark, err)
 		}
 	}
 }
