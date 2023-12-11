@@ -280,7 +280,7 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, get
 
 		forwardConn := dgws.GetForwardConn(ctx, forwardMark)
 		if forwardConn == nil {
-			dglogger.Infof(ctx, "[%s: %d] forward conn is nil", bizKey, bizId)
+			dglogger.Debugf(ctx, "[%s: %d] forward conn is nil", bizKey, bizId)
 			time.Sleep(time.Millisecond * 10)
 			continue
 		}
