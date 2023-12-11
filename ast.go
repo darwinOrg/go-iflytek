@@ -302,7 +302,7 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, get
 		//conn.WriteMessage(mt, data)
 
 		if mt == websocket.TextMessage {
-			dglogger.Infof(ctx, "[%s: %d, forwardMark: %s] receive iflytek ast message: %s", bizKey, bizId, forwardMark, string(data))
+			dglogger.Debugf(ctx, "[%s: %d, forwardMark: %s] receive iflytek ast message: %s", bizKey, bizId, forwardMark, string(data))
 			var mp map[string]any
 			err := json.Unmarshal(data, &mp)
 			if err != nil {
