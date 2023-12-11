@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	dgcoll "github.com/darwinOrg/go-common/collection"
 	dgctx "github.com/darwinOrg/go-common/context"
+	dgerr "github.com/darwinOrg/go-common/enums/error"
 	"github.com/darwinOrg/go-common/model"
 	"github.com/darwinOrg/go-common/utils"
 	dglogger "github.com/darwinOrg/go-logger"
@@ -176,11 +177,17 @@ func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) strin
 
 func AstWriteStarted(ctx *dgctx.DgContext, cn *websocket.Conn) error {
 	dglogger.Infof(ctx, "send ast started message")
+	if cn == nil {
+		return dgerr.SYSTEM_ERROR
+	}
 	return cn.WriteMessage(websocket.TextMessage, []byte("{\"action\":\"started\"}"))
 }
 
 func AstWriteEnd(ctx *dgctx.DgContext, cn *websocket.Conn) error {
 	dglogger.Infof(ctx, "send ast end message")
+	if cn == nil {
+		return dgerr.SYSTEM_ERROR
+	}
 	return cn.WriteMessage(websocket.TextMessage, []byte("{\"end\":true}"))
 }
 
