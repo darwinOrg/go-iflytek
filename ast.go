@@ -338,12 +338,12 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, get
 			}
 
 			if astResult != nil && consumeAstResultFunc != nil {
-				if astResult.HasFinalWords() {
-					err := consumeAstResultFunc(ctx, astResult, time.Now())
-					if err != nil {
-						dglogger.Errorf(ctx, "[%s: %d, forwardMark: %s] consume ast message[%s] error: %v", bizKey, bizId, forwardMark, string(data), err)
-					}
+				//if astResult.HasFinalWords() {
+				err := consumeAstResultFunc(ctx, astResult, time.Now())
+				if err != nil {
+					dglogger.Errorf(ctx, "[%s: %d, forwardMark: %s] consume ast message[%s] error: %v", bizKey, bizId, forwardMark, string(data), err)
 				}
+				//}
 			}
 
 			continue
