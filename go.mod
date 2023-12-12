@@ -3,10 +3,10 @@ module github.com/darwinOrg/go-iflytek
 go 1.19
 
 require (
-	github.com/darwinOrg/go-common v0.0.30
+	github.com/darwinOrg/go-common v0.1.1
 	github.com/darwinOrg/go-httpclient v0.1.0
 	github.com/darwinOrg/go-logger v0.0.5
-	github.com/darwinOrg/go-websocket v0.1.13
+	github.com/darwinOrg/go-websocket v0.1.15
 	github.com/google/uuid v1.4.0
 	github.com/gorilla/websocket v1.5.1
 )
@@ -35,7 +35,7 @@ require (
 	github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
-	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
+	github.com/pelletier/go-toml/v2 v2.1.1 // indirect
 	github.com/prometheus/client_golang v1.17.0 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.45.0 // indirect

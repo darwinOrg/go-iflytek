@@ -13,8 +13,8 @@ github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d/go.mod h1:8EPpV
 github.com/chenzhuoyu/iasm v0.9.0/go.mod h1:Xjy2NpN3h7aUqeqM+woSuuvxmIe6+DDsiNLIrkAmYog=
 github.com/chenzhuoyu/iasm v0.9.1 h1:tUHQJXo3NhBqw6s33wkGn9SP3bvrWLdlVIJ3hQBL7P0=
 github.com/chenzhuoyu/iasm v0.9.1/go.mod h1:Xjy2NpN3h7aUqeqM+woSuuvxmIe6+DDsiNLIrkAmYog=
-github.com/darwinOrg/go-common v0.0.30 h1:Sl9NwbmqFlD7OkTzLofeaH8KWn+fWGd/4l4PP8xC4qs=
-github.com/darwinOrg/go-common v0.0.30/go.mod h1:pItL/4ZV0bU64N2qD9ACpvDlYjeomAbheIzPXKqbb88=
+github.com/darwinOrg/go-common v0.1.1 h1:+drexZzRzQ3KaFRfqhe9dqksmVXn0xeWY8BXzoQK28A=
+github.com/darwinOrg/go-common v0.1.1/go.mod h1:pItL/4ZV0bU64N2qD9ACpvDlYjeomAbheIzPXKqbb88=
 github.com/darwinOrg/go-httpclient v0.1.0 h1:8Uwq8x0zGVvtu1+wwVpr0IgZZ72BzsAzzXZQ3DW8j20=
 github.com/darwinOrg/go-httpclient v0.1.0/go.mod h1:Tr5dc0qg2OY3utuqbCvrqWdSM5gfCpyfBum/mWdEX6g=
 github.com/darwinOrg/go-logger v0.0.5 h1:lnbPEGuUAhkqSbktHOtv8Lxe8RJaeF4KY/uud29hVE4=
@@ -25,8 +25,8 @@ github.com/darwinOrg/go-validator-ext v0.0.3 h1:mS/wiYITKJ//FO+XCcEWabWibwPSlVt+
 github.com/darwinOrg/go-validator-ext v0.0.3/go.mod h1:AY2v44qPq0a0fqwk5a8MCckCJ4MXyJQPfoYT6dUtdPQ=
 github.com/darwinOrg/go-web v0.0.24 h1:fET2PtHjAd3Z9vt3NPAoY37CelIQjgb5StylpY0uKCE=
 github.com/darwinOrg/go-web v0.0.24/go.mod h1:j9hOLDQzopqES+LVzMGPCp4FloOY5d2vPATGTjULMLw=
-github.com/darwinOrg/go-websocket v0.1.13 h1:xQ8NZ7ul9dO7Rl5XDD2JPGZA+xJNieFSt19U2EYOfM0=
-github.com/darwinOrg/go-websocket v0.1.13/go.mod h1:qRGhFV5EsTK1nxnVeDcMGtbHo0g0rtTnPygHiMYgtzc=
+github.com/darwinOrg/go-websocket v0.1.15 h1:fADPKwgy70nbuUjCDi6lBa6iw04sSxKJCYe1HjyTMoc=
+github.com/darwinOrg/go-websocket v0.1.15/go.mod h1:7I1H3H0XC44xDXBNd39J9qXUrxsOKJkzTpwe9c9UdB4=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -74,8 +74,8 @@ github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd h1:TRLaZ9cD/w
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/reflect2 v1.0.2 h1:xBagoLtFs94CBntxluKeaWgTMpvLxC4ur3nMaC9Gz0M=
 github.com/modern-go/reflect2 v1.0.2/go.mod h1:yWuevngMOJpCy52FWWMvUC8ws7m/LJsjYzDa0/r8luk=
-github.com/pelletier/go-toml/v2 v2.1.0 h1:FnwAJ4oYMvbT/34k9zzHuZNrhlz48GB3/s6at6/MHO4=
-github.com/pelletier/go-toml/v2 v2.1.0/go.mod h1:tJU2Z3ZkXwnxa4DPO899bsyIoywizdUvyaeZurnPPDc=
+github.com/pelletier/go-toml/v2 v2.1.1 h1:LWAJwfNvjQZCFIDKWYQaM62NcYeYViCmWIwmOStowAI=
+github.com/pelletier/go-toml/v2 v2.1.1/go.mod h1:tJU2Z3ZkXwnxa4DPO899bsyIoywizdUvyaeZurnPPDc=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/prometheus/client_golang v1.17.0 h1:rl2sfwZMtSthVU752MqfjQozy7blglC+1SOtjMAMh+Q=
