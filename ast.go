@@ -102,7 +102,7 @@ func (ar *AstResult) CombineFinalWords(ctx *dgctx.DgContext, roleType RoleType) 
 		}
 	}
 
-	return deleteStartPunctuation(finalWords)
+	return finalWords
 }
 
 func (c *Client) AstConnect(ctx *dgctx.DgContext, config *AstParamConfig) (*websocket.Conn, error) {
