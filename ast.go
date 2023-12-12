@@ -11,6 +11,7 @@ import (
 	dgws "github.com/darwinOrg/go-websocket"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"io"
 	"net/url"
 	"strconv"
 	"strings"
@@ -19,9 +20,10 @@ import (
 
 type RoleType int
 type AstResultType string
-type GetBizIdFunc func(ctx *dgctx.DgContext) int64
-type SaveAstStartedMetaFunc func(*dgctx.DgContext, string, string) error
-type ConsumeAstResultFunc func(*dgctx.DgContext, *AstResult, time.Time) error
+type GetBizIdHandler func(ctx *dgctx.DgContext) int64
+type ForwardDisconnectedHandler func(ctx *dgctx.DgContext, forwardMark string) error
+type SaveAstStartedMetaHandler func(*dgctx.DgContext, string, string) error
+type ConsumeAstResultHandler func(*dgctx.DgContext, *AstResult, time.Time) error
 
 const (
 	RoleTypeClose RoleType = 0
@@ -273,8 +275,8 @@ func GetCurrentRole(ctx *dgctx.DgContext) string {
 	return currentRole.(string)
 }
 
-func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, getBizIdFunc GetBizIdFunc, saveAstStartedMetaFunc SaveAstStartedMetaFunc, consumeAstResultFunc ConsumeAstResultFunc) {
-	bizId := getBizIdFunc(ctx)
+func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, bizIdHandler GetBizIdHandler, forwardDisconnectedHandler ForwardDisconnectedHandler, saveAstStartedMetaHandler SaveAstStartedMetaHandler, consumeAstResultHandler ConsumeAstResultHandler) {
+	bizId := bizIdHandler(ctx)
 
 	for {
 		if dgws.IsWsEnded(ctx) {
@@ -299,7 +301,6 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, get
 			dgws.SetForwardWsEnded(ctx, forwardMark)
 			continue
 		}
-		//conn.WriteMessage(mt, data)
 
 		if mt == websocket.TextMessage {
 			dglogger.Debugf(ctx, "[%s: %d, forwardMark: %s] receive iflytek ast message: %s", bizKey, bizId, forwardMark, string(data))
@@ -313,10 +314,10 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, get
 			action := mp["action"]
 			if action == "started" {
 				dglogger.Infof(ctx, "[%s: %d, forwardMark: %s] received iflytek ast started message", bizKey, bizId, forwardMark)
-				if saveAstStartedMetaFunc != nil {
+				if saveAstStartedMetaHandler != nil {
 					contextId := mp[ContextIdKey].(string)
 					sessionId := mp[SessionIdKey].(string)
-					err := saveAstStartedMetaFunc(ctx, contextId, sessionId)
+					err := saveAstStartedMetaHandler(ctx, contextId, sessionId)
 					if err != nil {
 						dglogger.Errorf(ctx, "[%s: %d, forwardMark: %s] save ast started meta[contextId: %s, sessionId: %s] error: %v", bizKey, bizId, forwardMark, contextId, sessionId, err)
 					}
@@ -337,9 +338,9 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, get
 				continue
 			}
 
-			if astResult != nil && consumeAstResultFunc != nil {
+			if astResult != nil && consumeAstResultHandler != nil {
 				//if astResult.HasFinalWords() {
-				err := consumeAstResultFunc(ctx, astResult, time.Now())
+				err := consumeAstResultHandler(ctx, astResult, time.Now())
 				if err != nil {
 					dglogger.Errorf(ctx, "[%s: %d, forwardMark: %s] consume ast message[%s] error: %v", bizKey, bizId, forwardMark, string(data), err)
 				}
@@ -351,6 +352,17 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, get
 
 		if err != nil {
 			dglogger.Errorf(ctx, "[%s: %d, forwardMark: %s] read ast message error: %v", bizKey, bizId, forwardMark, err)
+			if err == io.EOF {
+				if forwardDisconnectedHandler != nil {
+					err := forwardDisconnectedHandler(ctx, forwardMark)
+					if err != nil {
+						time.Sleep(time.Second)
+						continue
+					}
+				} else {
+					return
+				}
+			}
 		}
 	}
 }
