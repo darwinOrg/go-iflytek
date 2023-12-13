@@ -277,12 +277,12 @@ func GetCurrentRole(ctx *dgctx.DgContext) string {
 
 func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, bizIdHandler GetBizIdHandler, forwardDisconnectedHandler ForwardDisconnectedHandler, saveAstStartedMetaHandler SaveAstStartedMetaHandler, consumeAstResultHandler ConsumeAstResultHandler) {
 	dgws.IncrWaitGroup(ctx)
+	defer dgws.DoneWaitGroup(ctx)
 	bizId := bizIdHandler(ctx)
 
 	for {
 		if dgws.IsWsEnded(ctx) {
 			dglogger.Infof(ctx, "[%s: %d, forwardMark: %s] websocket already ended", bizKey, bizId, forwardMark)
-			dgws.DoneWaitGroup(ctx)
 			return
 		}
 
