@@ -11,7 +11,6 @@ import (
 	dgws "github.com/darwinOrg/go-websocket"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
-	"io"
 	"net/url"
 	"strconv"
 	"strings"
@@ -55,12 +54,11 @@ type AstParamConfig struct {
 }
 
 type AstReadMessageRequest struct {
-	ForwardMark                string
-	BizKey                     string
-	BizIdHandler               GetBizIdHandler
-	ForwardDisconnectedHandler ForwardDisconnectedHandler
-	SaveAstStartedMetaHandler  SaveAstStartedMetaHandler
-	ConsumeAstResultHandler    ConsumeAstResultHandler
+	ForwardMark               string
+	BizKey                    string
+	BizIdHandler              GetBizIdHandler
+	SaveAstStartedMetaHandler SaveAstStartedMetaHandler
+	ConsumeAstResultHandler   ConsumeAstResultHandler
 }
 
 type AstResult struct {
@@ -361,17 +359,6 @@ func AstReadMessage(ctx *dgctx.DgContext, req *AstReadMessageRequest) {
 
 		if err != nil {
 			dglogger.Errorf(ctx, "[%s: %d, forwardMark: %s] read ast message error: %v", bizKey, bizId, forwardMark, err)
-			if err == io.EOF {
-				if req.ForwardDisconnectedHandler != nil {
-					err := req.ForwardDisconnectedHandler(ctx, forwardMark)
-					if err != nil {
-						time.Sleep(time.Second)
-						continue
-					}
-				} else {
-					return
-				}
-			}
 		}
 	}
 }
