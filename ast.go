@@ -40,8 +40,6 @@ const (
 	UnknownErrorCode           = "999999"
 )
 
-var punctuations = []string{",", ".", "?", "!", ";", ":", "'", "\"", "(", ")", "{", "}", "[", "]", "<", ">", "@", "#", "$", "%", "^", "&", "*", "+", "=", "-", "_", "|", "~", "，", "。", "？", "！", "；", "：", "“", "”", "‘", "’", "《", "》", "（", "）", "【", "】"}
-
 type AstParamConfig struct {
 	Lang           string   `json:"lang"`
 	Codec          string   `json:"codec"`
@@ -54,6 +52,15 @@ type AstParamConfig struct {
 	SourceInfo     string   `json:"sourceInfo"`
 	FilePath       string   `json:"filePath"`
 	ResultFilePath string   `json:"resultFilePath"`
+}
+
+type AstReadMessageRequest struct {
+	ForwardMark                string
+	BizKey                     string
+	BizIdHandler               GetBizIdHandler
+	ForwardDisconnectedHandler ForwardDisconnectedHandler
+	SaveAstStartedMetaHandler  SaveAstStartedMetaHandler
+	ConsumeAstResultHandler    ConsumeAstResultHandler
 }
 
 type AstResult struct {
@@ -275,10 +282,12 @@ func GetCurrentRole(ctx *dgctx.DgContext) string {
 	return currentRole.(string)
 }
 
-func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, bizIdHandler GetBizIdHandler, forwardDisconnectedHandler ForwardDisconnectedHandler, saveAstStartedMetaHandler SaveAstStartedMetaHandler, consumeAstResultHandler ConsumeAstResultHandler) {
+func AstReadMessage(ctx *dgctx.DgContext, req *AstReadMessageRequest) {
 	dgws.IncrWaitGroup(ctx)
 	defer dgws.DoneWaitGroup(ctx)
-	bizId := bizIdHandler(ctx)
+	bizId := req.BizIdHandler(ctx)
+	forwardMark := req.ForwardMark
+	bizKey := req.BizKey
 
 	for {
 		if dgws.IsWsEnded(ctx) {
@@ -316,10 +325,10 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, biz
 			action := mp["action"]
 			if action == "started" {
 				dglogger.Infof(ctx, "[%s: %d, forwardMark: %s] received iflytek ast started message", bizKey, bizId, forwardMark)
-				if saveAstStartedMetaHandler != nil {
+				if req.SaveAstStartedMetaHandler != nil {
 					contextId := mp[ContextIdKey].(string)
 					sessionId := mp[SessionIdKey].(string)
-					err := saveAstStartedMetaHandler(ctx, contextId, sessionId)
+					err := req.SaveAstStartedMetaHandler(ctx, contextId, sessionId)
 					if err != nil {
 						dglogger.Errorf(ctx, "[%s: %d, forwardMark: %s] save ast started meta[contextId: %s, sessionId: %s] error: %v", bizKey, bizId, forwardMark, contextId, sessionId, err)
 					}
@@ -340,13 +349,11 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, biz
 				continue
 			}
 
-			if astResult != nil && consumeAstResultHandler != nil {
-				//if astResult.HasFinalWords() {
-				err := consumeAstResultHandler(ctx, astResult, time.Now())
+			if astResult != nil && req.ConsumeAstResultHandler != nil {
+				err := req.ConsumeAstResultHandler(ctx, astResult, time.Now())
 				if err != nil {
 					dglogger.Errorf(ctx, "[%s: %d, forwardMark: %s] consume ast message[%s] error: %v", bizKey, bizId, forwardMark, string(data), err)
 				}
-				//}
 			}
 
 			continue
@@ -355,8 +362,8 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, biz
 		if err != nil {
 			dglogger.Errorf(ctx, "[%s: %d, forwardMark: %s] read ast message error: %v", bizKey, bizId, forwardMark, err)
 			if err == io.EOF {
-				if forwardDisconnectedHandler != nil {
-					err := forwardDisconnectedHandler(ctx, forwardMark)
+				if req.ForwardDisconnectedHandler != nil {
+					err := req.ForwardDisconnectedHandler(ctx, forwardMark)
 					if err != nil {
 						time.Sleep(time.Second)
 						continue
@@ -367,19 +374,4 @@ func AstReadMessage(ctx *dgctx.DgContext, forwardMark string, bizKey string, biz
 			}
 		}
 	}
-}
-
-func deleteStartPunctuation(str string) string {
-	if str == "" {
-		return ""
-	}
-
-	for _, p := range punctuations {
-		_, after, found := strings.Cut(str, p)
-		if found {
-			return after
-		}
-	}
-
-	return str
 }

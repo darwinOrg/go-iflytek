@@ -6,8 +6,8 @@ require (
 	github.com/darwinOrg/go-common v0.1.1
 	github.com/darwinOrg/go-httpclient v0.1.0
 	github.com/darwinOrg/go-logger v0.0.5
-	github.com/darwinOrg/go-websocket v0.1.19
-	github.com/google/uuid v1.4.0
+	github.com/darwinOrg/go-websocket v0.1.22
+	github.com/google/uuid v1.5.0
 	github.com/gorilla/websocket v1.5.1
 )
 
