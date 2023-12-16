@@ -20,7 +20,6 @@ import (
 type RoleType int
 type AstResultType string
 type GetBizIdHandler func(ctx *dgctx.DgContext) int64
-type ForwardDisconnectedHandler func(ctx *dgctx.DgContext, forwardMark string) error
 type SaveAstStartedMetaHandler func(*dgctx.DgContext, string, string) error
 type ConsumeAstResultHandler func(*dgctx.DgContext, *AstResult, time.Time) error
 
