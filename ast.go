@@ -199,7 +199,7 @@ func AstWriteEnd(ctx *dgctx.DgContext, cn *websocket.Conn) error {
 	return cn.WriteMessage(websocket.TextMessage, []byte("{\"end\":true}"))
 }
 
-func IsAstEndMessage(mt int, data []byte) bool {
+func IsAstEndMessage(_ *dgctx.DgContext, mt int, data []byte) bool {
 	if mt == websocket.CloseMessage || mt == -1 {
 		return true
 	}
