@@ -1,6 +1,7 @@
 package dgkdxf
 
 import (
+	"errors"
 	"github.com/darwinOrg/go-common/model"
 	"github.com/darwinOrg/go-common/utils"
 	"time"
@@ -15,7 +16,12 @@ const (
 
 	timeFormat     = "2006-01-02T15:04:05Z0700"
 	apiSuccessCode = "000000"
+
+	defaultBufferSize = 1024 * 16
 )
+
+var ApiNoSuccessErr = errors.New("api resp no success")
+var ApiGetResultFailTypeErr = errors.New("api get result fail")
 
 type ClientConfig struct {
 	AppId           string `json:"appId"`
