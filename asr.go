@@ -230,15 +230,13 @@ func (c *Client) GetAsrResult(dc *dgctx.DgContext, orderId string) (*AsrResult, 
 	}
 
 	dglogger.Infof(dc, "sdk GetResult orderId: %s,orderStatus: %d", orderId, orderInfo.Status)
-	orderResult := &OrderResult{}
 	// 订单已完成的时候,解析识别结果
 	if orderInfo.Status == orderFinishedStatus {
-		orderResult, err = utils.ConvertJsonStringToBean[OrderResult](ret.Content.OrderResultString)
+		ret.Content.OrderResult, err = utils.ConvertJsonStringToBean[OrderResult](ret.Content.OrderResultString)
 		if err != nil {
 			dglogger.Errorf(dc, "sdk GetResult json.Unmarshal orderResult err: %v", err)
 			return ret, err
 		}
-		ret.Content.OrderResult = orderResult
 	}
 
 	return ret, nil
