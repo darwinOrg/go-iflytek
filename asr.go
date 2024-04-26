@@ -25,7 +25,7 @@ const (
 	orderFinishedStatus = 4
 )
 
-type IflytekUploadResult struct {
+type AsrUploadResult struct {
 	Code     string `json:"code"`
 	DescInfo string `json:"descInfo"`
 	Content  struct {
@@ -34,7 +34,7 @@ type IflytekUploadResult struct {
 	} `json:"content"`
 }
 
-func (r *IflytekUploadResult) String() string {
+func (r *AsrUploadResult) String() string {
 	j, err := json.Marshal(r)
 	if err != nil {
 		return err.Error()
@@ -43,7 +43,7 @@ func (r *IflytekUploadResult) String() string {
 	}
 }
 
-type IflytekResult struct {
+type AsrResult struct {
 	Code     string `json:"code"`
 	DescInfo string `json:"descInfo"`
 	Content  struct {
@@ -55,7 +55,8 @@ type IflytekResult struct {
 			RealDuration     int    `json:"realDuration"`
 			ExpireTime       int    `json:"expireTime"`
 		}
-		OrderResult string `json:"orderResult"`
+		OrderResultString string       `json:"orderResult"`
+		OrderResult       *OrderResult `json:"-"`
 	} `json:"content"`
 }
 
@@ -86,7 +87,7 @@ type Json1best struct {
 	} `json:"st"`
 }
 
-func (r *IflytekResult) String() string {
+func (r *AsrResult) String() string {
 	j, err := json.Marshal(r)
 	if err != nil {
 		return err.Error()
@@ -117,7 +118,7 @@ func (o *OrderResult) String() string {
 				}
 			}
 		}
-		fmt.Fprintf(&totalContent, "发言人%s:  %s \n", rl, itemStr)
+		_, _ = fmt.Fprintf(&totalContent, "发言人%s: %s\n", rl, itemStr)
 	}
 	return totalContent.String()
 }
@@ -135,12 +136,12 @@ func (sr *sizedReader) Read(p []byte) (n int, err error) {
 	return n, err
 }
 
-// Upload 上传录音文件到科大讯飞 返回 orderId failedReason err
-func (c *Client) Upload(dc *dgctx.DgContext, filePath string, duration int64, fileSize int64, callbackUrl string) (string, string, error) {
+// AsrUpload 上传录音文件到科大讯飞 返回 orderId failedReason err
+func (c *Client) AsrUpload(dc *dgctx.DgContext, filePath string, duration int64, fileSize int64, callbackUrl string) (*AsrUploadResult, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		dglogger.Errorf(dc, "sdk OpenFile err: %v", err)
-		return "", "", err
+		return nil, err
 	}
 
 	defer func() {
@@ -167,7 +168,7 @@ func (c *Client) Upload(dc *dgctx.DgContext, filePath string, duration int64, fi
 	req, err := http.NewRequest(http.MethodPost, uploadUrl, reader)
 	if err != nil {
 		dglogger.Errorf(dc, "sdk Upload http.NewRequest err: %v", err)
-		return "", "", err
+		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/octet-stream")
 	req.Header["signature"] = []string{signature}
@@ -175,71 +176,72 @@ func (c *Client) Upload(dc *dgctx.DgContext, filePath string, duration int64, fi
 	response, err := dghttp.Client11.DoRequestRaw(dc, req)
 	if err != nil {
 		dglogger.Errorf(dc, "sdk Upload Client.Do err: %v", err)
-		return "", "", err
+		return nil, err
 	}
 
 	dglogger.Infof(dc, "sdk Upload %s file success, uploaded bytes size: %d, file size is:%d,url %s", uploadFileName, reader.readSize, fileSize, uploadUrl)
 
 	if response.StatusCode != http.StatusOK {
 		dglogger.Errorf(dc, "sdk Upload http.Post statusCode: %d", response.StatusCode)
-		return "", "", errors.New("upload call asr-service failed")
+		return nil, errors.New("upload call asr-service failed")
 	}
 
-	ret, err := dghttp.ConvertResponse2Struct[IflytekUploadResult](response)
+	ret, err := dghttp.ConvertResponse2Struct[AsrUploadResult](response)
 	if err != nil {
 		dglogger.Errorf(dc, "sdk Upload utils.ResToObj err: %v", err)
-		return "", "", err
+		return nil, err
 	}
 
 	if ret.Code != apiSuccessCode {
 		dglogger.Errorf(dc, "sdk Upload asr-service failed: %s", ret.String())
-		return "", ret.DescInfo, ApiNoSuccessErr
+		return ret, ApiNoSuccessErr
 	}
 
-	return ret.Content.OrderId, "", nil
+	return ret, nil
 }
 
-// GetResult 获取科大讯飞的识别结果 api结果内容,音频识别内容,失败原因,error
-func (c *Client) GetResult(dc *dgctx.DgContext, orderId string) (string, string, string, error) {
+// GetAsrResult 获取科大讯飞的识别结果 api结果内容,音频识别内容,失败原因,error
+func (c *Client) GetAsrResult(dc *dgctx.DgContext, orderId string) (*AsrResult, error) {
 	params := c.buildGetResultParamList(orderId)
 	formUrlString := utils.FormUrlEncodedParams(params)
 	signature := c.GenerateSignature(params)
 	resultUrl := c.Config.Host + "/v2/getResult?" + formUrlString
 
 	dghttp.SetHttpClient(dc, dghttp.Client11)
-	ret, err := dghttp.DoGetToStruct[IflytekResult](dc, resultUrl, nil, map[string]string{"signature": signature})
+	ret, err := dghttp.DoGetToStruct[AsrResult](dc, resultUrl, nil, map[string]string{"signature": signature})
 	if err != nil {
 		dglogger.Errorf(dc, "dghttp.DoGetToStruct error | resultUrl: %s | err: %v", resultUrl, err)
-		return "", "", "", err
+		return nil, err
 	}
 	if ret == nil {
-		return "", "", "", dgerr.SYSTEM_ERROR
+		return nil, dgerr.SYSTEM_ERROR
 	}
 
 	if ret.Code != apiSuccessCode {
 		dglogger.Errorf(dc, "sdk GetResult asr-service failed: %s", ret.String())
-		return ret.String(), "", ret.DescInfo, ApiNoSuccessErr
+		return ret, ApiNoSuccessErr
 	}
 
 	orderInfo := ret.Content.OrderInfo
 	if orderInfo.FailType != 0 {
 		dglogger.Errorf(dc, "sdk GetResult asr-service failed: %s", ret.String())
 		reason := "order failType: " + strconv.FormatInt(int64(orderInfo.FailType), 10)
-		return ret.String(), "", reason, ApiGetResultFailTypeErr
+		return ret, errors.New(reason)
 	}
 
 	dglogger.Infof(dc, "sdk GetResult orderId: %s,orderStatus: %d", orderId, orderInfo.Status)
 	orderResult := &OrderResult{}
 	// 订单已完成的时候,解析识别结果
 	if orderInfo.Status == orderFinishedStatus {
-		err = json.Unmarshal([]byte(ret.Content.OrderResult), orderResult)
+		orderResult, err = utils.ConvertJsonStringToBean[OrderResult](ret.Content.OrderResultString)
 		if err != nil {
 			dglogger.Errorf(dc, "sdk GetResult json.Unmarshal orderResult err: %v", err)
-			return ret.String(), "", "", err
+			return ret, err
 		}
+		ret.Content.OrderResult = orderResult
 	}
 
-	return ret.String(), orderResult.String(), "", nil
+	return ret, nil
 }
 
 func (c *Client) buildUploadParamList(filename string, filesize int64, duration int64, callbackUrl string) []*model.KeyValuePair[string, any] {
