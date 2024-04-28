@@ -189,7 +189,7 @@ func (c *Client) AsrUpload(dc *dgctx.DgContext, filePath string, duration int64,
 	}()
 
 	uploadFileName := filepath.Base(filePath)
-	params := c.buildUploadParamList(uploadFileName, fileSize, duration, callbackUrl)
+	params := c.buildUploadParams(uploadFileName, fileSize, duration, callbackUrl)
 	parameters := utils.FormUrlEncodedParams(params)
 	signature := c.GenerateSignature(params)
 	uploadUrl := c.Config.Host + "/v2/upload?" + parameters
@@ -234,7 +234,7 @@ func (c *Client) AsrUpload(dc *dgctx.DgContext, filePath string, duration int64,
 
 // GetAsrResult 获取科大讯飞的识别结果 api结果内容,音频识别内容,失败原因,error
 func (c *Client) GetAsrResult(dc *dgctx.DgContext, orderId string) (*AsrResult, error) {
-	params := c.buildGetResultParamList(orderId)
+	params := c.buildGetResultParams(orderId)
 	formUrlString := utils.FormUrlEncodedParams(params)
 	signature := c.GenerateSignature(params)
 	resultUrl := c.Config.Host + "/v2/getResult?" + formUrlString
@@ -274,7 +274,7 @@ func (c *Client) GetAsrResult(dc *dgctx.DgContext, orderId string) (*AsrResult, 
 	return ret, nil
 }
 
-func (c *Client) buildUploadParamList(filename string, filesize int64, duration int64, callbackUrl string) []*model.KeyValuePair[string, any] {
+func (c *Client) buildUploadParams(filename string, filesize int64, duration int64, callbackUrl string) []*model.KeyValuePair[string, any] {
 	params := []*model.KeyValuePair[string, any]{
 		{
 			Key:   "dateTime",
@@ -326,7 +326,7 @@ func (c *Client) buildUploadParamList(filename string, filesize int64, duration 
 	return params
 }
 
-func (c *Client) buildGetResultParamList(orderId string) []*model.KeyValuePair[string, any] {
+func (c *Client) buildGetResultParams(orderId string) []*model.KeyValuePair[string, any] {
 	params := []*model.KeyValuePair[string, any]{
 		{
 			Key:   "dateTime",
