@@ -24,3 +24,5 @@ go.work
 *.opus
 *.pcm
 *.wav
+*.json
+*.srt

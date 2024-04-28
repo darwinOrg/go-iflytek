@@ -2,7 +2,6 @@ package dgkdxf
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,11 +18,15 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
+	"unicode/utf8"
 )
 
 const (
 	orderFinishedStatus = 4
 )
+
+var subtitlesSeparators = []string{"，", "。", "？", "！", ",", ".", "?", "!"}
 
 type AsrUploadResult struct {
 	Code     string `json:"code"`
@@ -62,8 +65,10 @@ type AsrResult struct {
 
 type OrderResult struct {
 	Lattice []struct {
-		Json1best string `json:"json_1best"`
-	} `json:"lattice"`
+		Begin     string     `json:"begin"`
+		End       string     `json:"end"`
+		Json1best *Json1best `json:"json_1best"`
+	} `json:"lattice2"`
 }
 
 type Json1best struct {
@@ -96,30 +101,62 @@ func (r *AsrResult) String() string {
 	}
 }
 
-func (o *OrderResult) String() string {
-	var json1BestArr []*Json1best
-	for _, lattice := range o.Lattice {
-		json1Best := &Json1best{}
-		err := json.Unmarshal([]byte(lattice.Json1best), json1Best)
-		if err != nil {
-			return err.Error()
-		}
-		json1BestArr = append(json1BestArr, json1Best)
+func (o *OrderResult) Convert2Subtitles() []*Subtitles {
+	if len(o.Lattice) == 0 {
+		return []*Subtitles{}
 	}
 
-	var totalContent bytes.Buffer
-	for _, json1best := range json1BestArr {
-		itemStr := ""
+	var subtitlesList []*Subtitles
+	subtitlesBuilder := &strings.Builder{}
+	var subtitlesBegin int
+
+	for _, lattice := range o.Lattice {
+		latticeBegin, _ := strconv.Atoi(lattice.Begin)
+		json1best := lattice.Json1best
+
+		for _, rt := range json1best.St.Rt {
+			for _, ws := range rt.Ws {
+				if subtitlesBegin == 0 {
+					subtitlesBegin = latticeBegin + ws.Wb*10
+				}
+
+				for _, cw := range ws.Cw {
+					if utf8.RuneCountInString(cw.W) == 1 && dgcoll.Contains(subtitlesSeparators, cw.W) {
+						subtitlesList = append(subtitlesList, &Subtitles{
+							Begin:     subtitlesBegin,
+							End:       latticeBegin + ws.We*10,
+							Separator: cw.W,
+							Words:     subtitlesBuilder.String(),
+						})
+						subtitlesBuilder.Reset()
+						subtitlesBegin = 0
+					} else {
+						subtitlesBuilder.WriteString(cw.W)
+					}
+				}
+			}
+		}
+	}
+
+	return subtitlesList
+}
+
+func (o *OrderResult) String() string {
+	var totalContent strings.Builder
+	for _, lattice := range o.Lattice {
+		var itemStr strings.Builder
+		json1best := lattice.Json1best
 		rl := json1best.St.Rl
 		for _, rt := range json1best.St.Rt {
 			for _, ws := range rt.Ws {
 				for _, cw := range ws.Cw {
-					itemStr += cw.W
+					itemStr.WriteString(cw.W)
 				}
 			}
 		}
-		_, _ = fmt.Fprintf(&totalContent, "发言人%s: %s\n", rl, itemStr)
+		totalContent.WriteString(fmt.Sprintf("发言人%s: %s\n", rl, itemStr.String()))
 	}
+
 	return totalContent.String()
 }
 

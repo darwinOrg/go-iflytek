@@ -51,3 +51,15 @@ func TestAsrGetResult(t *testing.T) {
 	}
 	dglogger.Infof(ctx, "rt: %s", utils.MustConvertBeanToJsonString(rt))
 }
+
+func TestConvert2Subtitles(t *testing.T) {
+	orderResultBytes, _ := os.ReadFile("test.json")
+	orderResult, _ := utils.ConvertJsonBytesToBean[dgkdxf.OrderResult](orderResultBytes)
+	subtitlesList := orderResult.Convert2Subtitles()
+	ctx := &dgctx.DgContext{TraceId: "123"}
+	dglogger.Infof(ctx, "rt: %s", utils.MustConvertBeanToJsonString(subtitlesList))
+	err := dgkdxf.ConvertSubtitles2SrtFormat(subtitlesList, "test.srt")
+	if err != nil {
+		panic(err)
+	}
+}
