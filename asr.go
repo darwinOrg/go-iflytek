@@ -149,11 +149,6 @@ func (c *Client) AsrUpload(dc *dgctx.DgContext, filePath string, duration int64,
 		if deferErr != nil {
 			dglogger.Errorf(dc, "Upload defer file.Close err: %v", deferErr)
 		}
-
-		deferErr = os.Remove(file.Name())
-		if deferErr != nil {
-			dglogger.Errorf(dc, "Upload defer os.Remove err: %v", deferErr)
-		}
 	}()
 
 	uploadFileName := filepath.Base(filePath)
