@@ -107,7 +107,7 @@ func (o *OrderResult) Convert2Subtitles() []*Subtitles {
 	}
 
 	var subtitlesList []*Subtitles
-	subtitlesBuilder := &strings.Builder{}
+	var subtitlesBuilder strings.Builder
 	var subtitlesBegin int
 
 	for _, lattice := range o.Lattice {

@@ -23,8 +23,8 @@ func TestAsrUpload(t *testing.T) {
 		AccessKeySecret: accessKeySecret,
 	})
 
-	fileBytes, _ := os.ReadFile("test.pcm")
-	rt, err := client.AsrUpload(ctx, "test.pcm", 45370, int64(len(fileBytes)), "")
+	fileBytes, _ := os.ReadFile("test.opus")
+	rt, err := client.AsrUpload(ctx, "test.opus", 45370, int64(len(fileBytes)), "")
 	if err != nil {
 		panic(err)
 	}
