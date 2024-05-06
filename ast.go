@@ -2,7 +2,6 @@ package dgkdxf
 
 import (
 	"encoding/json"
-	dgcoll "github.com/darwinOrg/go-common/collection"
 	dgctx "github.com/darwinOrg/go-common/context"
 	dgerr "github.com/darwinOrg/go-common/enums/error"
 	"github.com/darwinOrg/go-common/model"
@@ -12,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"net/url"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -123,14 +121,14 @@ func (c *Client) AstConnect(ctx *dgctx.DgContext, config *AstParamConfig) (*webs
 }
 
 func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) string {
-	parts := []string{"v1.0", c.Config.AppId, c.Config.AccessKeyId, getNowTimeString(), uuid.NewString()}
+	parts := []string{"v1.0", c.Config.AppId, c.Config.AccessKeyId, getDateTimeString(), uuid.NewString()}
 	partsStr := strings.Join(parts, ",")
 	baseString := url.QueryEscape(partsStr)
 	signature := utils.Sha1Base64Encode(c.Config.AccessKeySecret, baseString)
 	parts = append(parts, signature)
 	authString := strings.Join(parts, ",")
 
-	params := []*model.KeyValuePair[string, string]{
+	params := []*model.KeyValuePair[string, any]{
 		{
 			Key:   "lang",
 			Value: config.Lang,
@@ -157,7 +155,7 @@ func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) strin
 		},
 		{
 			Key:   "roleType",
-			Value: strconv.Itoa(int(config.RoleType)),
+			Value: config.RoleType,
 		},
 		{
 			Key:   "featureIds",
@@ -166,7 +164,7 @@ func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) strin
 
 		{
 			Key:   "authString",
-			Value: url.QueryEscape(authString),
+			Value: authString,
 		},
 		{
 			Key:   "trackId",
@@ -174,11 +172,7 @@ func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) strin
 		},
 	}
 
-	paramsArr := dgcoll.MapToList(params, func(p *model.KeyValuePair[string, string]) string {
-		return p.Key + "=" + p.Value
-	})
-	paramsStr := strings.Join(paramsArr, "&")
-	return c.Config.Host + "/ast?" + paramsStr
+	return c.Config.Host + "/ast?" + utils.FormUrlEncodedParams(params)
 }
 
 func AstWriteStarted(ctx *dgctx.DgContext, cn *websocket.Conn) error {

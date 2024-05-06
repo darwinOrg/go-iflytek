@@ -278,7 +278,7 @@ func (c *Client) buildUploadParams(filename string, filesize int64, duration int
 	params := []*model.KeyValuePair[string, any]{
 		{
 			Key:   "dateTime",
-			Value: getNowTimeString(),
+			Value: getDateTimeString(),
 		},
 		{
 			Key:   "accessKeyId",
@@ -322,7 +322,7 @@ func (c *Client) buildUploadParams(filename string, filesize int64, duration int
 		},
 	}
 
-	dgcoll.SortAsc(params, func(p *model.KeyValuePair[string, any]) string { return p.Key })
+	sortParams(params)
 	return params
 }
 
@@ -330,7 +330,7 @@ func (c *Client) buildGetResultParams(orderId string) []*model.KeyValuePair[stri
 	params := []*model.KeyValuePair[string, any]{
 		{
 			Key:   "dateTime",
-			Value: getNowTimeString(),
+			Value: getDateTimeString(),
 		},
 		{
 			Key:   "accessKeyId",
@@ -346,6 +346,6 @@ func (c *Client) buildGetResultParams(orderId string) []*model.KeyValuePair[stri
 		},
 	}
 
-	dgcoll.SortAsc(params, func(p *model.KeyValuePair[string, any]) string { return p.Key })
+	sortParams(params)
 	return params
 }

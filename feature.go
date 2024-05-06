@@ -136,7 +136,7 @@ func (c *Client) buildFeatureParamsAndHeader(ctx *dgctx.DgContext) ([]*model.Key
 		},
 		{
 			Key:   "dateTime",
-			Value: getNowTimeString(),
+			Value: getDateTimeString(),
 		},
 		{
 			Key:   "signatureRandom",

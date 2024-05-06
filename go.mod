@@ -3,8 +3,8 @@ module github.com/darwinOrg/go-iflytek
 go 1.19
 
 require (
-	github.com/darwinOrg/go-common v0.1.40
-	github.com/darwinOrg/go-httpclient v0.1.17
+	github.com/darwinOrg/go-common v0.1.42
+	github.com/darwinOrg/go-httpclient v0.1.18
 	github.com/darwinOrg/go-logger v0.0.6
 	github.com/darwinOrg/go-websocket v0.2.4
 	github.com/google/uuid v1.6.0
