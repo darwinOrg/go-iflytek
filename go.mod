@@ -3,12 +3,12 @@ module github.com/darwinOrg/go-iflytek
 go 1.19
 
 require (
-	github.com/darwinOrg/go-common v0.1.51
-	github.com/darwinOrg/go-httpclient v0.1.18
-	github.com/darwinOrg/go-logger v0.0.6
+	github.com/darwinOrg/go-common v0.1.60
+	github.com/darwinOrg/go-httpclient v0.1.22
+	github.com/darwinOrg/go-logger v0.0.7
 	github.com/darwinOrg/go-websocket v0.2.4
 	github.com/google/uuid v1.6.0
-	github.com/gorilla/websocket v1.5.1
+	github.com/gorilla/websocket v1.5.3
 )
 
 require (
@@ -18,7 +18,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.3 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
-	github.com/darwinOrg/go-monitor v0.0.3 // indirect
+	github.com/darwinOrg/go-monitor v0.0.4 // indirect
 	github.com/darwinOrg/go-validator-ext v0.0.7 // indirect
 	github.com/darwinOrg/go-web v0.1.24 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
@@ -45,10 +45,10 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	golang.org/x/arch v0.7.0 // indirect
-	golang.org/x/crypto v0.22.0 // indirect
-	golang.org/x/net v0.24.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/crypto v0.23.0 // indirect
+	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
