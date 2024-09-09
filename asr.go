@@ -65,10 +65,8 @@ type AsrResult struct {
 
 type OrderResult struct {
 	Lattice []struct {
-		Begin     string     `json:"begin"`
-		End       string     `json:"end"`
-		Json1best *Json1best `json:"json_1best"`
-	} `json:"lattice2"`
+		Json1best string `json:"json_1best"`
+	} `json:"lattice"`
 }
 
 type Json1best struct {
@@ -111,20 +109,23 @@ func (o *OrderResult) Convert2Subtitles() []*Subtitles {
 	var subtitlesBegin int
 
 	for _, lattice := range o.Lattice {
-		latticeBegin, _ := strconv.Atoi(lattice.Begin)
-		json1best := lattice.Json1best
+		if lattice.Json1best == "" {
+			continue
+		}
+		json1best := utils.MustConvertJsonStringToBean[Json1best](lattice.Json1best)
+		latticeBegin, _ := strconv.ParseInt(json1best.St.Bg, 10, 0)
 
 		for _, rt := range json1best.St.Rt {
 			for _, ws := range rt.Ws {
 				if subtitlesBegin == 0 {
-					subtitlesBegin = latticeBegin + ws.Wb*10
+					subtitlesBegin = int(latticeBegin) + ws.Wb*10
 				}
 
 				for _, cw := range ws.Cw {
 					if utf8.RuneCountInString(cw.W) == 1 && dgcoll.Contains(subtitlesSeparators, cw.W) {
 						subtitlesList = append(subtitlesList, &Subtitles{
 							Begin:     subtitlesBegin,
-							End:       latticeBegin + ws.We*10,
+							End:       int(latticeBegin) + ws.We*10,
 							Separator: cw.W,
 							Words:     subtitlesBuilder.String(),
 						})
@@ -144,8 +145,11 @@ func (o *OrderResult) Convert2Subtitles() []*Subtitles {
 func (o *OrderResult) String() string {
 	var totalContent strings.Builder
 	for _, lattice := range o.Lattice {
+		if lattice.Json1best == "" {
+			continue
+		}
+		json1best := utils.MustConvertJsonStringToBean[Json1best](lattice.Json1best)
 		var itemStr strings.Builder
-		json1best := lattice.Json1best
 		rl := json1best.St.Rl
 		for _, rt := range json1best.St.Rt {
 			for _, ws := range rt.Ws {
