@@ -122,7 +122,8 @@ func (o *OrderResult) Convert2Subtitles() []*Subtitles {
 				}
 
 				for _, cw := range ws.Cw {
-					if utf8.RuneCountInString(cw.W) == 1 && dgcoll.Contains(subtitlesSeparators, cw.W) {
+					word := strings.TrimSpace(cw.W)
+					if utf8.RuneCountInString(word) == 1 && dgcoll.Contains(subtitlesSeparators, word) {
 						subtitlesList = append(subtitlesList, &Subtitles{
 							Begin:     subtitlesBegin,
 							End:       int(latticeBegin) + ws.We*10,
