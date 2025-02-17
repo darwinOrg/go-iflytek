@@ -238,16 +238,17 @@ func (c *Client) AsrUpload(dc *dgctx.DgContext, filePath string, duration int64,
 }
 
 // GetAsrResult 获取科大讯飞的识别结果 api结果内容,音频识别内容,失败原因,error
-func (c *Client) GetAsrResult(dc *dgctx.DgContext, orderId string) (*AsrResult, error) {
+func (c *Client) GetAsrResult(ctx *dgctx.DgContext, orderId string) (*AsrResult, error) {
 	params := c.buildGetResultParams(orderId)
 	formUrlString := utils.FormUrlEncodedParams(params)
 	signature := c.GenerateSignature(params)
 	resultUrl := c.Config.Host + "/v2/getResult?" + formUrlString
 
-	dghttp.SetHttpClient(dc, dghttp.Client11)
-	ret, err := dghttp.DoGetToStruct[AsrResult](dc, resultUrl, nil, map[string]string{"signature": signature})
+	dghttp.SetHttpClient(ctx, dghttp.Client11)
+	defer dghttp.SetHttpClient(ctx, nil)
+	ret, err := dghttp.DoGetToStruct[AsrResult](ctx, resultUrl, nil, map[string]string{"signature": signature})
 	if err != nil {
-		dglogger.Errorf(dc, "dghttp.DoGetToStruct error | resultUrl: %s | err: %v", resultUrl, err)
+		dglogger.Errorf(ctx, "dghttp.DoGetToStruct error | resultUrl: %s | err: %v", resultUrl, err)
 		return nil, err
 	}
 	if ret == nil {
@@ -255,23 +256,23 @@ func (c *Client) GetAsrResult(dc *dgctx.DgContext, orderId string) (*AsrResult, 
 	}
 
 	if ret.Code != apiSuccessCode {
-		dglogger.Errorf(dc, "sdk GetResult asr-service failed: %s", ret.String())
+		dglogger.Errorf(ctx, "sdk GetResult asr-service failed: %s", ret.String())
 		return ret, ApiNoSuccessErr
 	}
 
 	orderInfo := ret.Content.OrderInfo
 	if orderInfo.FailType != 0 {
-		dglogger.Errorf(dc, "sdk GetResult asr-service failed: %s", ret.String())
+		dglogger.Errorf(ctx, "sdk GetResult asr-service failed: %s", ret.String())
 		reason := "order failType: " + strconv.FormatInt(int64(orderInfo.FailType), 10)
 		return ret, errors.New(reason)
 	}
 
-	dglogger.Infof(dc, "sdk GetResult orderId: %s,orderStatus: %d", orderId, orderInfo.Status)
+	dglogger.Infof(ctx, "sdk GetResult orderId: %s,orderStatus: %d", orderId, orderInfo.Status)
 	// 订单已完成的时候,解析识别结果
 	if orderInfo.Status == orderFinishedStatus {
 		ret.Content.OrderResult, err = utils.ConvertJsonStringToBean[OrderResult](ret.Content.OrderResultString)
 		if err != nil {
-			dglogger.Errorf(dc, "sdk GetResult json.Unmarshal orderResult err: %v", err)
+			dglogger.Errorf(ctx, "sdk GetResult json.Unmarshal orderResult err: %v", err)
 			return ret, err
 		}
 	}

@@ -56,6 +56,7 @@ func (c *Client) RegisterFeature(ctx *dgctx.DgContext, req *RegisterFeatureReque
 	params, header := c.buildFeatureParamsAndHeader(ctx)
 	url := c.Config.Host + "/res/feature/v1/register?" + utils.FormUrlEncodedParams(params)
 	dghttp.SetHttpClient(ctx, dghttp.Client11)
+	defer dghttp.SetHttpClient(ctx, nil)
 	rt, err := dghttp.DoPostJsonToStruct[FeatureResult[string]](ctx, url, req, header)
 	if err != nil {
 		return "", err
@@ -81,6 +82,7 @@ func (c *Client) UpdateFeature(ctx *dgctx.DgContext, req *UpdateFeatureRequest) 
 	params, header := c.buildFeatureParamsAndHeader(ctx)
 	url := c.Config.Host + "/res/feature/v1/update?" + utils.FormUrlEncodedParams(params)
 	dghttp.SetHttpClient(ctx, dghttp.Client11)
+	defer dghttp.SetHttpClient(ctx, nil)
 	rt, err := dghttp.DoPostJsonToStruct[FeatureResult[string]](ctx, url, req, header)
 	if err != nil {
 		return err
@@ -107,6 +109,7 @@ func (c *Client) DeleteFeature(ctx *dgctx.DgContext, featureIds []string) []stri
 	params, header := c.buildFeatureParamsAndHeader(ctx)
 	url := c.Config.Host + "/res/feature/v1/update?" + utils.FormUrlEncodedParams(params)
 	dghttp.SetHttpClient(ctx, dghttp.Client11)
+	defer dghttp.SetHttpClient(ctx, nil)
 	rt, err := dghttp.DoPostJsonToStruct[FeatureResult[string]](ctx, url, req, header)
 	if err != nil {
 		return featureIds

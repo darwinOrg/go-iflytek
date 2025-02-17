@@ -346,6 +346,7 @@ func (c *Client) BindClientTel(ctx *dgctx.DgContext, bindReq *BindClientTelReq) 
 	uri := c.buildPostUri("/cc/bind_client_tel?")
 	dglogger.Infof(ctx, "BindClientTel buildPostUri: %s", uri)
 	dghttp.SetHttpClient(ctx, dghttp.Client2)
+	defer dghttp.SetHttpClient(ctx, nil)
 	resp, err := dghttp.DoPostJsonToStruct[KdxfResponse](ctx, uri, bindReq, nil)
 	if err != nil {
 		dglogger.Errorf(ctx, "BindClientTel[%+v] do post err: %v", bindReq, err)
@@ -362,6 +363,7 @@ func (c *Client) UnbindClientTel(ctx *dgctx.DgContext, unbindReq *UnbindClientTe
 	uri := c.buildPostUri("/cc/unbind_client_tel?")
 	dglogger.Infof(ctx, "UnbindClientTel buildPostUri: %s", uri)
 	dghttp.SetHttpClient(ctx, dghttp.Client2)
+	defer dghttp.SetHttpClient(ctx, nil)
 	resp, err := dghttp.DoPostJsonToStruct[KdxfResponse](ctx, uri, unbindReq, nil)
 	if err != nil {
 		dglogger.Errorf(ctx, "UnbindClientTel[%+v] do post err: %v", unbindReq, err)
