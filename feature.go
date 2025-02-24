@@ -107,7 +107,7 @@ func (c *Client) UpdateFeature(ctx *dgctx.DgContext, req *UpdateFeatureRequest) 
 func (c *Client) DeleteFeature(ctx *dgctx.DgContext, featureIds []string) []string {
 	req := map[string]any{"feature_ids": featureIds}
 	params, header := c.buildFeatureParamsAndHeader(ctx)
-	url := c.Config.Host + "/res/feature/v1/update?" + utils.FormUrlEncodedParams(params)
+	url := c.Config.Host + "/res/feature/v1/delete?" + utils.FormUrlEncodedParams(params)
 	dghttp.SetHttpClient(ctx, dghttp.Client11)
 	defer dghttp.SetHttpClient(ctx, nil)
 	rt, err := dghttp.DoPostJsonToStruct[FeatureResult[string]](ctx, url, req, header)
