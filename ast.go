@@ -17,6 +17,7 @@ import (
 
 type RoleType int
 type AstResultType string
+type EngVadMdnType int
 type GetBizIdHandler func(ctx *dgctx.DgContext) int64
 type SaveAstStartedMetaHandler func(*dgctx.DgContext, string, string) error
 type ConsumeAstResultHandler func(*dgctx.DgContext, *AstResult, time.Time) error
@@ -28,6 +29,9 @@ const (
 	AstResultTypeFinal  AstResultType = "0"
 	AstResultTypeMiddle AstResultType = "1"
 
+	EngVadMdnTypeFar  EngVadMdnType = 1
+	EngVadMdnTypeNear EngVadMdnType = 2
+
 	ContextIdKey   = "contextId"
 	SessionIdKey   = "sessionId"
 	CurrentRoleKey = "currentRole"
@@ -37,17 +41,18 @@ const (
 )
 
 type AstParamConfig struct {
-	Lang           string   `json:"lang"`
-	Codec          string   `json:"codec"`
-	AudioEncode    string   `json:"audioEncode"`
-	Samplerate     string   `json:"samplerate"`
-	RoleType       RoleType `json:"roleType"`
-	ContextId      string   `json:"contextId"`
-	FeatureIds     string   `json:"featureIds"`
-	HotWordId      string   `json:"hotWordId"`
-	SourceInfo     string   `json:"sourceInfo"`
-	FilePath       string   `json:"filePath"`
-	ResultFilePath string   `json:"resultFilePath"`
+	Lang           string        `json:"lang"`
+	Codec          string        `json:"codec"`
+	AudioEncode    string        `json:"audioEncode"`
+	Samplerate     string        `json:"samplerate"`
+	RoleType       RoleType      `json:"roleType"`
+	ContextId      string        `json:"contextId"`
+	FeatureIds     string        `json:"featureIds"`
+	HotWordId      string        `json:"hotWordId"`
+	SourceInfo     string        `json:"sourceInfo"`
+	FilePath       string        `json:"filePath"`
+	ResultFilePath string        `json:"resultFilePath"`
+	EngVadMdn      EngVadMdnType `json:"engVadMdn" remark:"vad 远近场切换。不传此参数或传值1代表远场。若要使用近场，传值2"`
 }
 
 type AstReadMessageRequest struct {
@@ -110,6 +115,9 @@ func (ar *AstResult) CombineFinalWords(ctx *dgctx.DgContext, roleType RoleType) 
 }
 
 func (c *Client) AstConnect(ctx *dgctx.DgContext, config *AstParamConfig) (*websocket.Conn, error) {
+	if int(config.EngVadMdn) == 0 {
+		config.EngVadMdn = EngVadMdnTypeFar
+	}
 	uri := c.BuildAstUri(ctx, config)
 	dglogger.Infof(ctx, "ast config: %s, uri: %s", utils.MustConvertBeanToJsonString(config), uri)
 	cn, _, err := websocket.DefaultDialer.Dial(uri, nil)
@@ -161,7 +169,10 @@ func (c *Client) BuildAstUri(ctx *dgctx.DgContext, config *AstParamConfig) strin
 			Key:   "featureIds",
 			Value: config.FeatureIds,
 		},
-
+		{
+			Key:   "eng_vad_mdn",
+			Value: config.EngVadMdn,
+		},
 		{
 			Key:   "authString",
 			Value: authString,
