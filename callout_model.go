@@ -1,4 +1,4 @@
-package dgkdxf
+package iflytek
 
 type CnoReq struct {
 	Cno string `json:"cno"`

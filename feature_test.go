@@ -1,4 +1,4 @@
-package dgkdxf_test
+package iflytek_test
 
 import (
 	"encoding/base64"

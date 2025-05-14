@@ -1,4 +1,4 @@
-package dgkdxf
+package iflytek
 
 import (
 	"bufio"
