@@ -17,7 +17,7 @@ if [[ $current_version =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
     new_version="v${major}.${minor}.${new_patch}"
     git tag $new_version
     git push --tags
-    go list -m github.com/darwinOrg/go-iflytek
+    go list -m github.com/darwinOrg/go-iflytek@$new_version
     echo "版本已从 $current_version 升级到 $new_version"
 else
     echo "无法解析版本号: $current_version"
